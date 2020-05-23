@@ -96,8 +96,11 @@ x_train = job_description
 y_train = data['label'].tolist()
 # print(x_train)
 # print(y_train)
+# 将数据转换为longtensor型
 x_train = torch.LongTensor(x_train)
 x_train = torch.LongTensor(x_train)
+
+
 # 建立模型
 
 class Net(nn.Module):
@@ -111,6 +114,7 @@ class Net(nn.Module):
         self.dropout2 = torch.nn.Dropout(0.25)
         self.softmax = torch.nn.Softmax()
         self.dense1 = torch.nn.Linear(in_features=256,out_features=10)
+    #     前向传播
     def forward(self,data):
         data = self.embedding(data)
         data = self.dropout(data)
@@ -120,19 +124,27 @@ class Net(nn.Module):
         data = self.dense1(data)
         y_predict = self.softmax(data)
         return y_predict
+#     调用模型
 model = Net()
+# 选择交叉熵损失函数
 loss_f = nn.CrossEntropyLoss()
+# 调用SGD优化函数
 optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
-epoch = 5
 
-
-
+# 定义训练批次
+epoch = 10
 for i in range(epoch):
+    # 调用模型预测（有错误）
     y_pred = model(x_train)
+    # 求损失
     loss = loss_f(y_pred,y_train)
+    # 梯度置零
     optimizer.zero_grad()
+    # 反向传播
     loss.backward()
+    # 权值更新
     optimizer.step()
+#     画出预测值和真实值之间的区别
 plt.scatter(y_train,y_pred)
 plt.show()
 
