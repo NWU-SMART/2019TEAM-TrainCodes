@@ -1,0 +1,14 @@
+
+2020年5月24日7点24分
+1）首先看懂我发的keras的代码（API方式构建模型），房价预测这些
+2）将这些代码修改为Keras的Sequential和Class方式实现
+3）将这些代码重新修改为Pytorc实现
+缺点：
+1）编写代码量过小
+2）要从基本做起，勤于动手
+建议：
+1）用Keras的Sequential和Class方式也修改下代码
+2) 自己写的部分代码，一定要做好注释。另外，还是从房价那个最基本的做起
+3）看liuxuheng、gaoqiang、wangyuanyuan的实现代码
+
+
