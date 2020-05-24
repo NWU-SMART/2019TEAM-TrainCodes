@@ -76,16 +76,16 @@ from keras.layers.embeddings import Embedding
 Embedding,即嵌入层，将正整数（下标）转换为具有固定大小的向量
 Embedding 层只能作为模型的第一层
 '''
-# model = Sequential([
-#     Embedding(2000,32,input_length=50),       #  input_dim = 2000, output_dim = 32
-#     Dropout(0.2),
-#     Flatten(),
-#     Dense(256),
-#     Activation('relu'),
-#     Dropout(0.25),
-#     Dense(10),
-#     Activation('softmax') # 分十类
-# ])
+model = Sequential([
+    Embedding(2000,32,input_length=50),       #  input_dim = 2000, output_dim = 32
+    Dropout(0.2),
+    Flatten(),
+    Dense(256),
+    Activation('relu'),
+    Dropout(0.25),
+    Dense(10),
+    Activation('softmax') # 分十类
+])
 #------------------------------方法二：Model式模型（使用函数式API的Model类模型）--------------------------------------#
 
 # from keras.layers import Input
@@ -101,30 +101,30 @@ Embedding 层只能作为模型的第一层
 #----------------------------------------------------------------------------------------------------------------------#
 #------------------------------------------方法三：Model类继承（class）------------------------------------------------#
 import keras
-from keras.layers import Input
-
-class mymodel(keras.Model):
-    def __init__(self):
-        super(mymodel,self).__init__()
-        self.Embedding = keras.layers.Embedding(2000,32)
-        self.dropout = keras.layers.Dropout(0.2)
-        self.Flatten = keras.layers.Flatten()
-        self.dense1 = keras.layers.Dense(256,activation='relu')
-        self.dropout = keras.layers.Dropout(0.25)
-        self.dense2 = keras.layers.Dense(10, activation='softmax')
-
-
-    def call(self,inputs):
-        x = self.Embedding(inputs)
-        x = self.dropout(x)
-        x = self.Flatten(x)
-        x = self.dense1(x)
-        x = self.dropout(x)
-        x = self.dense2(x)
-        return x
-
-model= mymodel()
-inputs = Input(shape=(50,))
+# from keras.layers import Input
+#
+# class mymodel(keras.Model):
+#     def __init__(self):
+#         super(mymodel,self).__init__()
+#         self.Embedding = keras.layers.Embedding(2000,32)
+#         self.dropout = keras.layers.Dropout(0.2)
+#         self.Flatten = keras.layers.Flatten()
+#         self.dense1 = keras.layers.Dense(256,activation='relu')
+#         self.dropout = keras.layers.Dropout(0.25)
+#         self.dense2 = keras.layers.Dense(10, activation='softmax')
+#
+#
+#     def call(self,inputs):
+#         x = self.Embedding(inputs)
+#         x = self.dropout(x)
+#         x = self.Flatten(x)
+#         x = self.dense1(x)
+#         x = self.dropout(x)
+#         x = self.dense2(x)
+#         return x
+#
+# model= mymodel()
+# inputs = Input(shape=(50,))
 # 报错ValueError: Please provide as model targets either a single array or a list of arrays. You passed: y=[0, 0, 1, 1, 2, 3, 3, 2,
 #---------------------------------------------------------------------------------------------------------------------#
 
