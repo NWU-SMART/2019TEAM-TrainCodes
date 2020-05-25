@@ -179,7 +179,7 @@ from keras.models import load_model
 model.save_weights('weight.h5')
 # model.save('多层感知器.h5')
 # 加载模型
-model = load_model('多层感知器.h5')
+# model = load_model('多层感知器.h5')
 model = Sequential([
     Dense(units=10,   # 输出大小
         activation='relu',  # 激励函数
