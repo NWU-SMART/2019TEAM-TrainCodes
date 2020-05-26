@@ -8,3 +8,10 @@
 2）看liuxuheng、gaoqiang、wangyuanyuan的Keras的Class实现方式
 
 
+发现的问题：
+1）调试过程中报：“ModuleNotFoundError: No module named 'numpy.testing.nosetester'”的错，百度之后让
+更新numpy、scikit-learn、scipy、joblib到最新版本，实际更新后并没有用。后来将numpy等做降级处理，设置成1.17.0后
+程序调通。环境版本问题查起错来真的很麻烦。
+
+2)HousePredict_model_class.py中引入keras包出现新的问题，代码第32行“from tensorflow import keras”无法编译通过，
+尝试了很多方法，没有解决，明天继续搞。
