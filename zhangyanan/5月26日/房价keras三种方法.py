@@ -27,7 +27,7 @@ path = 'boston_housing.npz'
 f = np.load(path)      # numpy.load（）读取数据
 # 404个训练，102个测试
 # 训练数据
-x_train = f['x'][:404]  # 下标0到下标403
+x_train = f['x'][:404]  #  下标0到下标403
 y_train = f['y'][:404]
 # 测试数据
 x_valid = f['x'][404:]  # 下标404到下标505
