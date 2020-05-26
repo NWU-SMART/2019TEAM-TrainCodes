@@ -65,27 +65,28 @@ y_valid = min_max_scaler.transform(y_valid_pd) # 归一化
 #  -------------------------- 数据归一化 -------------------------------
 
 #  -------------------------- 4、模型训练 （Sequential()类型的模型）  -------------------------------
-model = Sequential() # 初始化
-model.add(Dense(units = 10,    # 输出大小
-                activation = 'relu', #激活函数
-                input_shape = (x_valid_pd.shape[1],)  # 输入大小
-                )
-          )
-model.add(Dropout(0.2))
-model.add(Dense(units = 15,    # 输出大小
-                activation = 'relu', #激活函数
-                )
-          )
-model.add(Dense(units = 1,    # 输出大小
-                activation = 'linear', #激活函数
-                )
-          )
-print(model.summary())  # 打印网络层次结构
+import keras
+class MLPmodel(keras.Model):
+    def __init__(self):
+        super(MLPmodel, self).__init__(name='mlp')
+        self.dense1 = keras.layers.Dense(10,activation='relu')
+        self.dropout = keras.layers.Dropout(0.2)
+        self.dense2 = keras.layers.Dense(15,activation='relu')
+        self.dense3 = keras.layers.Dense(1,activation='linear')
+
+    def call(self, inputs):
+        x = self.dense1(inputs)
+        x = self.dropout(x)
+        x = self.dense2(x)
+        x = self.dense3(x)
+        return x
+
+model = MLPmodel()
+print(model)  # 打印网络层次结构
 model.compile(loss='mse',  # 损失函数：均方误差
               optimizer='adam', # 优化器：adam
               )
-
-history = model.fit(x_train, y_train, # 训练集
+predict = model.fit(x_train, y_train, # 训练集
                     epochs=200,  # 迭代次数
                     batch_size=200,  # 每次用来梯度下降的批处理数据大小
                     verbose=2,  # verbose：日志冗长度，int：冗长度，0：不输出训练过程，1：输出训练进度，2：输出每一个epoch
@@ -95,8 +96,8 @@ history = model.fit(x_train, y_train, # 训练集
 
 #  -------------------------- 5、模型可视化    ------------------------------
 import matplotlib.pyplot as plt  # 导入包
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
+plt.plot(predict.history['loss'])
+plt.plot(predict.history['val_loss'])
 plt.title('Model loss')
 plt.ylabel('Loss')
 plt.xlabel('Epoch')
@@ -109,8 +110,8 @@ plt.show()
 from keras.utils import plot_model
 from keras.models import load_model
 
-model.save('model_MIP_HousePredict_sequential.h5') # 保存模型
-plot_model(model, to_file='model_MIP_HousePredict_sequential.png', show_shapes=True) #模型可视化 pip install pydot
+model.save('model_MIP_HousePredict_model.h5') # 保存模型
+plot_model(model, to_file='model_MIP_HousePredict_model.png', show_shapes=True) #模型可视化 pip install pydot
 y_new = model.predict(x_valid) # 预测
 # 反归一化
 min_max_scaler.fit(y_valid_pd)
