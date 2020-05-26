@@ -53,6 +53,7 @@ from keras.layers import BatchNormalization
 # 读取数据
 # 数据路径
 path = 'G:\python\code\多层感知器\job_detail_dataset.csv'
+# path = 'job_detail_dataset.csv'
 # 读取数据
 data = pd.read_csv(path,encoding='utf-8')
 # 维度（50000 x 2 ）
@@ -111,6 +112,7 @@ job_description = sequence.pad_sequences(description,maxlen=50)
 x_train = job_description
 y_train = data['label'].tolist()
 print(x_train.shape)
+print()
 
 # /------------------ 数据预处理 --------------------*/
 
@@ -119,19 +121,19 @@ print(x_train.shape)
 batch_size = 256
 epochs = 5
 # /------------------ 序贯模型--------------------*/
-model = Sequential()
-model.add(Embedding(output_dim=32,  # 词向量的维度
-                    input_dim=1000,  # 字典大小
-                    input_length=50  # 每个数字列表的长度
-                    ))
-
-model.add(Dropout(0.2))
-model.add(Flatten())
-model.add(Dense(units=256,
-                activation="relu"))
-model.add(Dropout(0.25))
-model.add(Dense(units=10,
-                activation="softmax"))
+# model = Sequential()
+# model.add(Embedding(output_dim=32,  # 词向量的维度
+#                     input_dim=1000,  # 字典大小
+#                     input_length=50  # 每个数字列表的长度
+#                     ))
+#
+# model.add(Dropout(0.2))
+# model.add(Flatten())
+# model.add(Dense(units=256,
+#                 activation="relu"))
+# model.add(Dropout(0.25))
+# model.add(Dense(units=10,
+#                 activation="softmax"))
 # /------------------ 序贯模型（第二种类型）--------------------*/
 # model = Sequential([
 #     Embedding(output_dim=32,  # 词向量的维度
@@ -147,17 +149,18 @@ model.add(Dense(units=10,
 # ])
 # /------------------ API类型--------------------*/
 #
-# from keras.layers import Input
-# from keras.models import Model
-# input = Input(shape=(50,))
-# train_API = Embedding(output_dim=32,input_dim=1000,input_length=50)(input)
-# train_API = Dropout(0.2)(train_API)
-# train_API = Dense(units=256,activation='relu')(train_API)
-# train_API = Dropout(0.25)(train_API)
-# result = Dense(units=10,activation='softmax')(train_API)
-# model = Model(input=input,outputs=result)
+from keras.layers import Input
+from keras.models import Model
+input = Input(shape=(50,))
+train_API = Embedding(output_dim=32,input_dim=1000)(input)
+train_API = Dropout(0.2)(train_API)
+train_API = Flatten()(train_API)
+train_API = Dense(units=256,activation='relu')(train_API)
+train_API = Dropout(0.25)(train_API)
+result = Dense(units=10,activation='softmax')(train_API)
+model = Model(input=input,outputs=result)
 
-# 类继承形式
+# 类继承形式(有错误)
 # import keras
 # class MLP(keras.Model):
 #     def __init__(self):
@@ -168,9 +171,12 @@ model.add(Dense(units=10,
 #         self.dense2 = keras.layers.Dense(units=10,activation='softmax')
 #         self.dropout1 = keras.layers.Dropout(0.2)
 #         self.dropout2 = keras.layers.Dropout(0.25)
+#         self.flatten = keras.layers.Flatten()
+#
 #     def call(self,x):
 #         x = self.embedding(x)
 #         x = self.dropout1(x)
+#         x = self.flatten(x)
 #         x = self.dense1(x)
 #         x = self.dropout2(x)
 #         x = self.dense2(x)
