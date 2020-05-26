@@ -14,7 +14,9 @@
 # 5.损失函数可视化
 # 6.预测结果
 # ---------------------------------------------------------------------
+
 # --------------------------1引入相关包-----------------------------
+from collections import OrderedDict
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
@@ -70,6 +72,7 @@ valid_y_te = valid_y_te.float()
 # -------------------------3数据归一化------------------------------
 
 # ----------------------------4建立模型-------------------------------
+# 方法1
 class house(nn.Module):
     def __init__(self):
         super(house, self).__init__()
@@ -87,6 +90,57 @@ class house(nn.Module):
     def forward(self, x):
         out = self.fc(x)
         return out
+
+
+# 方法2
+class house2(nn.Module):
+    def __init__(self):
+        super(house2, self).__init__()
+        self.fc1 = nn.Linear(13, 10)
+        self.relu1 = nn.ReLU()
+        self.dropout = nn.Dropout(0.2)
+        self.fc2 = nn.Linear(10, 15)
+        self.relu2 = nn.ReLU()
+        self.fc3 = nn.Linear(15, 1)
+
+    def forward(self, x):
+        x = self.fc1(x)
+        x = self.relu1(x)
+        x = self.dropout(x)
+        return self.fc3(self.relu2(self.fc2(x)))
+
+
+# 方法3
+class house3(nn.Module):
+    def __init__(self):
+        super(house3, self).__init__()
+        self.mlp = nn.Sequential(OrderedDict([
+            ('fc1', nn.Linear(13, 10)),
+            ('relu1', nn.ReLU()),
+            ('dp', nn.Dropout(0.2)),
+            ('fc2', nn.Linear(10, 15)),
+            ('relu2', nn.ReLU()),
+            ('fc3', nn.Linear(15, 1))
+        ]))
+
+    def forward(self, x):
+        return self.mlp(x)
+
+
+# 方法4
+class house4(nn.Module):
+    def __init__(self):
+        super(house4, self).__init__()
+        self.mlp = nn.Sequential()
+        self.mlp.add_module('fc1', nn.Linear(13, 10))
+        self.mlp.add_module('relu1', nn.ReLU())
+        self.mlp.add_module('dp', nn.Dropout(0.2))
+        self.mlp.add_module('fc2', nn.Linear(10, 15))
+        self.mlp.add_module('relu2', nn.ReLU())
+        self.mlp.add_module('fc3', nn.Linear(15, 1))
+
+    def forward(self, x):
+        return self.mlp(x)
 
 
 model = house()  # 用类来创建模型
