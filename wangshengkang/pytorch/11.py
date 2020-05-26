@@ -14,7 +14,9 @@
 # 5.损失函数可视化
 # 6.预测结果
 # ---------------------------------------------------------------------
+
 # --------------------------1引入相关包-----------------------------
+from collections import OrderedDict
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
@@ -70,6 +72,7 @@ valid_y_te = valid_y_te.float()
 # -------------------------3数据归一化------------------------------
 
 # ----------------------------4建立模型-------------------------------
+# 类方法1-4
 class house(nn.Module):
     def __init__(self):
         super(house, self).__init__()
@@ -89,7 +92,85 @@ class house(nn.Module):
         return out
 
 
-model = house()  # 用类来创建模型
+class house2(nn.Module):
+    def __init__(self):
+        super(house2, self).__init__()
+        self.fc1 = nn.Linear(13, 10)
+        self.relu1 = nn.ReLU()
+        self.dropout = nn.Dropout(0.2)
+        self.fc2 = nn.Linear(10, 15)
+        self.relu2 = nn.ReLU()
+        self.fc3 = nn.Linear(15, 1)
+
+    def forward(self, x):
+        x = self.fc1(x)
+        x = self.relu1(x)
+        x = self.dropout(x)
+        return self.fc3(self.relu2(self.fc2(x)))
+
+
+class house3(nn.Module):
+    def __init__(self):
+        super(house3, self).__init__()
+        self.mlp = nn.Sequential(OrderedDict([
+            ('fc1', nn.Linear(13, 10)),
+            ('relu1', nn.ReLU()),
+            ('dp', nn.Dropout(0.2)),
+            ('fc2', nn.Linear(10, 15)),
+            ('relu2', nn.ReLU()),
+            ('fc3', nn.Linear(15, 1))
+        ]))
+
+    def forward(self, x):
+        return self.mlp(x)
+
+
+class house4(nn.Module):
+    def __init__(self):
+        super(house4, self).__init__()
+        self.mlp = nn.Sequential()
+        self.mlp.add_module('fc1', nn.Linear(13, 10))
+        self.mlp.add_module('relu1', nn.ReLU())
+        self.mlp.add_module('dp', nn.Dropout(0.2))
+        self.mlp.add_module('fc2', nn.Linear(10, 15))
+        self.mlp.add_module('relu2', nn.ReLU())
+        self.mlp.add_module('fc3', nn.Linear(15, 1))
+
+    def forward(self, x):
+        return self.mlp(x)
+
+
+# 序列化模型方法1-3
+# model = nn.Sequential()
+# model.add_module('fc1', nn.Linear(13, 10))
+# model.add_module('relu1', nn.ReLU())
+# model.add_module('dp', nn.Dropout(0.2))
+# model.add_module('fc2', nn.Linear(10, 15))
+# model.add_module('relu2', nn.ReLU())
+# model.add_module('fc3', nn.Linear(15, 1))
+
+
+# model = nn.Sequential(
+#             nn.Linear(13, 10),  # 全连接层
+#             nn.ReLU(),  # relu激活函数
+#             nn.Dropout(0.2),  # Dropout
+#             nn.Linear(10, 15),
+#             nn.ReLU(),
+#             nn.Linear(15, 1)
+# )
+
+
+# model = nn.Sequential(OrderedDict([
+#             ('fc1', nn.Linear(13, 10)),
+#             ('relu1', nn.ReLU()),
+#             ('dp', nn.Dropout(0.2)),
+#             ('fc2', nn.Linear(10, 15)),
+#             ('relu2', nn.ReLU()),
+#             ('fc3', nn.Linear(15, 1))
+#         ]))
+
+
+model = house()  # 用类来创建模型，如果用序列化模型方法，需要注释掉此行
 loss = nn.MSELoss(reduction='sum')  # mse损失，计算方式采用sum（默认为mean）
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)  # 优化器
 epochs = 200
