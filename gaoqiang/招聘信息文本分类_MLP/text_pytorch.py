@@ -1,7 +1,10 @@
 # ----------------开发者信息--------------------------------#
 # 开发者：高强
-# 开发日期：2020年5月25日
+# 开发日期：2020.05.25
 # 开发框架：pytorch
+# 修改日期：2020.05.26
+# 修改内容: 解决Flatten()层报错问题
+# 备注：用到Flatten()这个层，得先更新pytorch,不然报错
 #-----------------------------------------------------------#
 
 # ----------------------   代码布局： ---------------------- #
@@ -61,55 +64,59 @@ Job_Description_Seq_Padding = sequence.pad_sequences(Job_Description_Seq, maxlen
 x_train = Job_Description_Seq_Padding    # 训练数据 数字列表（长度为50）
 y_train = job_detail_pd['label'].tolist()# 训练标签转化为列表
 import torch
-x_train = torch.Tensor(x_train)   # 转换为tensor
-y_train = torch.Tensor(y_train)   # 转换为tensor
+import numpy as np
+from torch.autograd import Variable
+y_train = np.array(y_train)  # 标签转换为array形式
+x_train = Variable(torch.from_numpy(x_train)).long() # x_train变为variable数据类型
+y_train = Variable(torch.from_numpy(y_train)).long() # y_train变为variable数据类型
+
 #----------------------------------------------训练模型---------------------------------------------------------#
 ################################  方法一：自定义class      ############################################
 import torch.nn as nn
 
-class Model(nn.Module):
-    def __init__(self):
-        super(Model,self).__init__()
-        self.Embedding = torch.nn.Embedding(2000,32)
-        self.Dropout1 = torch.nn.Dropout(0.2)
-        self.Flatten = torch.nn.Flatten()
-        self.linear1 = torch.nn.Linear(1600,256)
-        self.relu1 = torch.nn.ReLU()
-        self.Dropout2 = torch.nn.Dropout(0.25)
-        self.linear2 = torch.nn.Linear(256,10)
-        self.softmax = torch.nn.Softmax()
-
-    def forward(self,x):
-        x = self.Embedding(x)
-        x = self.Dropout1(x)
-        x = self.Flatten(x)
-        x = self.linear1(x)
-        x = self.relu1(x)
-        x = self.Dropout2(x)
-        x = self.linear2(x)
-        x = self.softmax(x)
-
-        return x
+# class Model(nn.Module):
+#     def __init__(self):
+#         super(Model,self).__init__()
+#         self.Embedding = torch.nn.Embedding(2000,32)
+#         self.Dropout1 = torch.nn.Dropout(0.2)
+#         self.Flatten = torch.nn.Flatten()
+#         self.linear1 = torch.nn.Linear(1600,256)
+#         self.relu1 = torch.nn.ReLU()
+#         self.Dropout2 = torch.nn.Dropout(0.25)
+#         self.linear2 = torch.nn.Linear(256,10)
+#         self.softmax = torch.nn.Softmax()
+#
+#     def forward(self,x):
+#         x = self.Embedding(x)
+#         x = self.Dropout1(x)
+#         x = self.Flatten(x)
+#         x = self.linear1(x)
+#         x = self.relu1(x)
+#         x = self.Dropout2(x)
+#         x = self.linear2(x)
+#         x = self.softmax(x)
+#
+#         return x
 
 ################################  方法二：Sequential    ############################################
 
-# class Model(nn.Module):
-#     def __init__(self):
-#         super(Model, self).__init__()
-#         self.layer = torch.nn.Sequential(
-#             torch.nn.Embedding(2000,32),
-#             torch.nn.Dropout(0.2),
-#             torch.nn.Flatten(),
-#             torch.nn.Linear(1600,256),
-#             torch.nn.ReLU(),
-#             torch.nn.Dropout(0.25),
-#             torch.nn.Linear(256,10),
-#             torch.nn.Softmax()
-#         )
-#
-#     def forward(self, x):
-#         x = self.layer(x)
-#         return x
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.layer = torch.nn.Sequential(
+            torch.nn.Embedding(2000,32),
+            torch.nn.Dropout(0.2),
+            torch.nn.Flatten(),
+            torch.nn.Linear(1600,256),
+            torch.nn.ReLU(),
+            torch.nn.Dropout(0.25),
+            torch.nn.Linear(256,10),
+            torch.nn.Softmax()
+        )
+
+    def forward(self, x):
+        x = self.layer(x)
+        return x
 
 
 ###############################################################################################################
@@ -134,9 +141,9 @@ for t in range(Epoch):
     # 更新梯度
     optimizer.step()
 
-# 保存模型
-print("模型保存")
-torch.save(model, '\model.pkl')
-# 加载模型
-print("加载模型")
-model = torch.load('\model.pkl')
+# # 保存模型
+# print("模型保存")
+# torch.save(model, '\model.pkl')
+# # 加载模型
+# print("加载模型")
+# model = torch.load('\model.pkl')
