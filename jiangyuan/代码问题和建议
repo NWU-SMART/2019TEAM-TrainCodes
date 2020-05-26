@@ -4,4 +4,6 @@
 2）将这些代码修改为Keras的Sequential和Class方式实现
 3）将这些代码重新修改为Pytorc实现
 
-
+2020年5月26日17点45分
+1）实现了房价预测的Keras的三种方式，很棒
+2）可以看看liuxuheng，wangyuanyuan的Pytorh的实现方式

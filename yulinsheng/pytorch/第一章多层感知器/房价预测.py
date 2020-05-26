@@ -31,9 +31,7 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import torch
-import torchvision
-import torchvision.transforms as transforms
-from torch.autograd import Variable
+import torch.nn as nn
 
 # /*------------------ 导入需要的包 --------------------*/
 
@@ -98,19 +96,72 @@ test_y = torch.FloatTensor(train_x)
 # /*------------------ 模型构建 --------------------*/
 # 模型构建
 # 三层网络结果
-# 输入，输出，隐藏层
-model = torch.nn.Sequential(
-#     输入特征为X的13维特征，输出设定为100
-    torch.nn.Linear(13, out_features=100),
-#     通过一个relu激活函数
-    torch.nn.ReLU(),
-#     根据上一个输入100，定义为一个输出
-    torch.nn.Linear(100, 1),
-#     再跟随一个relu激活函数
+# /*------------------ 第一种sequential --------------------*/
+# model = torch.nn.Sequential(
+# #     输入特征为X的13维特征，输出设定为100
+#     torch.nn.Linear(13, out_features=100),
+# #     通过一个relu激活函数
 #     torch.nn.ReLU(),
-)
+# #     根据上一个输入100，定义为一个输出
+#     torch.nn.Linear(100, 1),
+# #     再跟随一个relu激活函数
+# #     torch.nn.ReLU(),
+# )
+# /*------------------ 第二种sequential + OrderedDict类型 --------------------*/
+from collections import OrderedDict
+class Model(torch.nn.Module):
+    def __init__(self):
+        super(Model,self).__init__()
+        self.model = torch.nn.Sequential(
+            OrderedDict([
+                ('dense1',torch.nn.Linear(13,10)),
+                ('relu',torch.nn.ReLU()),
+                ('dense2',torch.nn.Linear(10,15)),
+                ('relu',torch.nn.ReLU()),
+                ('dense3',torch.nn.Linear(15,1))
+            ]))
+    def forward(self,x):
+        result = self.model(x)
+        return result
+
+# /*------------------ 第三种利用类继承add_module的方式 --------------------*/
+# class Model(torch.nn.Module):
+#     def __init__(self):
+#         super(Model,self).__init__()
+#         self.input = torch.nn.Sequential()
+#         self.input.add_module('dense1',torch.nn.Linear(13,10))
+#         self.input.add_module('relu1',torch.nn.ReLU())
+#         self.input.add_module('dense2',torch.nn.Linear(10,15))
+#         self.input.add_module('relu2', torch.nn.ReLU())
+#         self.input.add_module('dense3',torch.nn.Linear(15,1))
+#     def forward(self,x):
+#         result = self.input(x)
+#         return result
+
+
+
+# /*------------------ 第四种利用类继承方式 --------------------*/
+# class Model(torch.nn.Module):
+#     def __init__(self):
+#         super(Model,self).__init__()
+#         self.dense1 = torch.nn.Linear(13,10)
+#         self.relu = torch.nn.ReLU()
+#         self.dense2 = torch.nn.Linear(in_features=10,out_features=15)
+#         self.dense3 = torch.nn.Linear(in_features=15, out_features=1)
+#     def forward(self,x):
+#         x = self.dense1(x)
+#         x = self.relu(x)
+#         x = self.dense2(x)
+#         x = self.relu(x)
+#         result = self.dense3(x)
+#         return result
+
+
+#
+
+model = Model()
 # 定义学习率
-learning_rate = 1e-2
+learning_rate = 1e-3
 # 定义损失函数MSE
 loss_fn = torch.nn.MSELoss(reduction='sum')
 # 优化函数Adam
@@ -121,14 +172,14 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 # /*------------------ 模型训练--------------------*/
 # 初始化参数
-torch.nn.init.normal_(model[0].weight)
-torch.nn.init.normal_(model[2].weight)
+# torch.nn.init.normal_(model[0].weight)
+# torch.nn.init.normal_(model[2].weight)
 
-num_epochs = 500
+num_epochs = 200
 print(train_x.shape)
 for i in range(num_epochs):
 #     训练特征
-    y_pred =  model(train_x)
+    y_pred = model(train_x)
 # 计算损失函数
     loss = loss_fn(y_pred,train_y)
     print(i, loss.item())
@@ -142,3 +193,10 @@ for i in range(num_epochs):
 plt.show()
 
 # /*------------------ 模型训练--------------------*/
+# 保存模型
+torch.save(model,'mlp.pkl')
+model_1 = torch.load('mlp.pkl')
+model_1.eval()
+y_predtest = model(test_x)
+loss1= loss_fn(y_predtest,test_y)
+print(loss)

@@ -11,4 +11,14 @@
 2) 自己写的部分代码，一定要做好注释。另外，还是从房价那个最基本的做起
 3）看liuxuheng、gaoqiang、wangyuanyuan的实现代码
 
+2020年5月24日18点22分
+1）pytorch的房价预测做的很好
+2）可以编写一下keras的class构建模型的方法，和pytorch的class方式进行比较
+   init 相同 / forward --> pytorch ,  call --> keras
 
+2020年5月26日9点10分
+1）Pytorch的实现代码也可以用多种方式实现，除了Class方式
+2）代码能力在逐步提升，加油
+
+2020年5月26日18：08分
+1）完成了招聘分类代码，很好，加油
