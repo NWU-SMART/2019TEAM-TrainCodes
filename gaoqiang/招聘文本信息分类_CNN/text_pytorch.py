@@ -1,10 +1,8 @@
 # ----------------开发者信息--------------------------------#
 # 开发者：高强
-# 开发日期：2020.05.25
+# 开发日期：2020年5月26日
 # 开发框架：pytorch
-# 修改日期：2020.05.26
-# 修改内容: 解决Flatten()层报错问题
-# 备注：用到Flatten()这个层，得先更新pytorch,不然报错
+# 修改日期：
 #-----------------------------------------------------------#
 
 # ----------------------   代码布局： ---------------------- #
@@ -13,7 +11,7 @@
 # 3、分词和提取关键词
 # 4、建立字典，并使用
 # 5、训练模型
-# 6、保存模型，显示运行结果
+# 6、保存模型
 #--------------------------------------------------------------#
 #-----------------------------------------招聘数据导入------------------------------------------------#
 import pandas as pd
@@ -54,7 +52,7 @@ print(job_detail_pd.head())# 打印前五个
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing import sequence
 # 建立2000个词的字典
-token = Tokenizer(num_words = 2000)
+token = Tokenizer(num_words = 200) #2000
 token.fit_on_texts(job_detail_pd['Job_Description_key_word'])#按单词出现次数排序，排序前2000的单词会列入词典中
 # 使用token字典将“文字”转化为“数字列表”
 Job_Description_Seq = token.texts_to_sequences(job_detail_pd['Job_Description_key_word'])
@@ -69,57 +67,42 @@ from torch.autograd import Variable
 y_train = np.array(y_train)  # 标签转换为array形式
 x_train = Variable(torch.from_numpy(x_train)).long() # x_train变为variable数据类型
 y_train = Variable(torch.from_numpy(y_train)).long() # y_train变为variable数据类型
-
 #----------------------------------------------训练模型---------------------------------------------------------#
-################################  方法一：自定义class      ############################################
 import torch.nn as nn
-
-# class Model(nn.Module):
-#     def __init__(self):
-#         super(Model,self).__init__()
-#         self.Embedding = torch.nn.Embedding(2000,32)
-#         self.Dropout1 = torch.nn.Dropout(0.2)
-#         self.Flatten = torch.nn.Flatten()
-#         self.linear1 = torch.nn.Linear(1600,256)
-#         self.relu1 = torch.nn.ReLU()
-#         self.Dropout2 = torch.nn.Dropout(0.25)
-#         self.linear2 = torch.nn.Linear(256,10)
-#         self.softmax = torch.nn.Softmax()
-#
-#     def forward(self,x):
-#         x = self.Embedding(x)
-#         x = self.Dropout1(x)
-#         x = self.Flatten(x)
-#         x = self.linear1(x)
-#         x = self.relu1(x)
-#         x = self.Dropout2(x)
-#         x = self.linear2(x)
-#         x = self.softmax(x)
-#
-#         return x
-
-################################  方法二：Sequential    ############################################
 
 class Model(nn.Module):
     def __init__(self):
-        super(Model, self).__init__()
-        self.layer = torch.nn.Sequential(
-            torch.nn.Embedding(2000,32),
-            torch.nn.Dropout(0.2),
-            torch.nn.Flatten(),
-            torch.nn.Linear(1600,256),
-            torch.nn.ReLU(),
-            torch.nn.Dropout(0.25),
-            torch.nn.Linear(256,10),
-            torch.nn.Softmax()
-        )
+        super(Model,self).__init__()
+        self.Embedding = torch.nn.Embedding(200,50)  #  input_dim = 2000（字典大小）, output_dim = 32，input_length = 50  # 每个数字列表的长度
+        self.conv1 = torch.nn.Conv1d(50,256,kernel_size=3,padding=1) #Conv1d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True)
+        self.relu1 = torch.nn.ReLU()
+        self.MaxPool = torch.nn.MaxPool1d(kernel_size=3,padding=1)
+        self.conv2= torch.nn.Conv1d(256, 50, kernel_size=3, padding=1)
+        self.Flatten = torch.nn.Flatten()
+        self.Dropout1 = torch.nn.Dropout(0.3)
+        self.bathnormalization = torch.nn.BatchNorm1d(50)# (批)规范化层
+        self.linear1 = torch.nn.Linear(50,256)
+        self.relu2 = torch.nn.ReLU()
+        self.Dropout2 = torch.nn.Dropout(0.2)
+        self.linear2 = torch.nn.Linear(256, 10)
+        self.softmax = torch.nn.Softmax()
 
-    def forward(self, x):
-        x = self.layer(x)
+    def forward(self,x):
+        x = self.Embedding(x)
+        x = self.conv1(x)
+        x = self.relu1(x)
+        x = self.MaxPool (x)
+        x = self.conv2(x)
+        x = self.Flatten(x)
+        x = self.Dropout1(x)
+        x = self.bathnormalization(x)
+        x = self.linear1(x)
+        x = self.relu2(x)
+        x = self.Dropout2(x)
+        x = self.linear2(x)
+        x = self.softmax(x)
         return x
 
-
-###############################################################################################################
 model = Model()
 print(model)
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)

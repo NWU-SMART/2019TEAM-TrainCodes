@@ -180,7 +180,7 @@ model.save_weights('weight.h5')
 # model.save('多层感知器.h5')
 # 加载模型
 # model = load_model('多层感知器.h5')
-model = Sequential([
+model1 = Sequential([
     Dense(units=10,   # 输出大小
         activation='relu',  # 激励函数
         input_shape=(x_train.shape[1],)),  # 输入大小, 也就是列的大小
@@ -193,11 +193,11 @@ model = Sequential([
         input_dim=15)
 
 ])
-model.compile(loss='mse',#均方损失
+model1.compile(loss='mse',#均方损失
               optimizer='adam',
               )#adam优化
-model.load_weights('weight.h5')
-y_predict = model.predict(x_valid)
+model1.load_weights('weight.h5')
+y_predict = model1.predict(x_valid)
 # 查看预测值和真实值之间的差距
 plt.plot(y_predict)
 plt.plot(y_valid)
