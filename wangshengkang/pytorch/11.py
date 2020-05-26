@@ -72,7 +72,7 @@ valid_y_te = valid_y_te.float()
 # -------------------------3数据归一化------------------------------
 
 # ----------------------------4建立模型-------------------------------
-# 方法1
+# 类方法1-4
 class house(nn.Module):
     def __init__(self):
         super(house, self).__init__()
@@ -92,7 +92,6 @@ class house(nn.Module):
         return out
 
 
-# 方法2
 class house2(nn.Module):
     def __init__(self):
         super(house2, self).__init__()
@@ -110,7 +109,6 @@ class house2(nn.Module):
         return self.fc3(self.relu2(self.fc2(x)))
 
 
-# 方法3
 class house3(nn.Module):
     def __init__(self):
         super(house3, self).__init__()
@@ -127,7 +125,6 @@ class house3(nn.Module):
         return self.mlp(x)
 
 
-# 方法4
 class house4(nn.Module):
     def __init__(self):
         super(house4, self).__init__()
@@ -143,7 +140,37 @@ class house4(nn.Module):
         return self.mlp(x)
 
 
-model = house()  # 用类来创建模型
+# 序列化模型方法1-3
+# model = nn.Sequential()
+# model.add_module('fc1', nn.Linear(13, 10))
+# model.add_module('relu1', nn.ReLU())
+# model.add_module('dp', nn.Dropout(0.2))
+# model.add_module('fc2', nn.Linear(10, 15))
+# model.add_module('relu2', nn.ReLU())
+# model.add_module('fc3', nn.Linear(15, 1))
+
+
+# model = nn.Sequential(
+#             nn.Linear(13, 10),  # 全连接层
+#             nn.ReLU(),  # relu激活函数
+#             nn.Dropout(0.2),  # Dropout
+#             nn.Linear(10, 15),
+#             nn.ReLU(),
+#             nn.Linear(15, 1)
+# )
+
+
+# model = nn.Sequential(OrderedDict([
+#             ('fc1', nn.Linear(13, 10)),
+#             ('relu1', nn.ReLU()),
+#             ('dp', nn.Dropout(0.2)),
+#             ('fc2', nn.Linear(10, 15)),
+#             ('relu2', nn.ReLU()),
+#             ('fc3', nn.Linear(15, 1))
+#         ]))
+
+
+model = house()  # 用类来创建模型，如果用序列化模型方法，需要注释掉此行
 loss = nn.MSELoss(reduction='sum')  # mse损失，计算方式采用sum（默认为mean）
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)  # 优化器
 epochs = 200

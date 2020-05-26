@@ -6,11 +6,11 @@
 
 # ----------------------   代码布局： ---------------------- #
 # 1、导入 Keras, matplotlib, numpy, sklearn 和 panda的包
-# 2、招聘数据导入
-# 3、分词和提取关键词
-# 4、建立字典，并使用
-# 5、训练模型
-# 6、保存模型，显示运行结果
+# 2、房价训练和测试数据载入
+# 3、数据归一化
+# 4、模型训练 （Sequential()类型的模型）
+# 5、模型可视化
+# 6、模型保存和预测
 #--------------------------------------------------------------#
 
 #  -------------------------- 1、导入需要包 -------------------------------
@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
-#  -------------------------- 1、导入需要包 -------------------------------
+#  -------------------------- 导入需要包 -------------------------------
 
 #  -------------------------- 2、房价训练和测试数据载入 -------------------------------
 # 数据放到本地路径
@@ -47,7 +47,7 @@ y_valid_pd = pd.DataFrame(y_valid)
 print(x_train_pd.head(3))  # 输出训练数据的x (前3个)
 print(y_train_pd.head(3))  # 输出训练数据的y (前3个)
 # 转成DataFrame格式方便数据处理
-#  -------------------------- 2、房价训练和测试数据载入 -------------------------------
+#  -------------------------- 房价训练和测试数据载入 -------------------------------
 
 #  -------------------------- 3、数据归一化 -------------------------------
 # 归一化函数
@@ -62,57 +62,58 @@ min_max_scaler.fit(x_valid_pd) # 计算最大值最小值
 x_valid = min_max_scaler.transform(x_valid_pd) # 归一化
 min_max_scaler.fit(y_valid_pd) # 计算最大值最小值
 y_valid = min_max_scaler.transform(y_valid_pd) # 归一化
-#  -------------------------- 3、数据归一化 -------------------------------
+#  -------------------------- 数据归一化 -------------------------------
 
-#  -------------------------- 4、模型训练 （Sequential()类型的模型）  -------------------------------
-model = Sequential() # 初始化
-model.add(Dense(units = 10,    # 输出大小
-                activation = 'relu', #激活函数
-                input_shape = (x_valid_pd.shape[1],)  # 输入大小
-                )
-          )
-model.add(Dropout(0.2))
-model.add(Dense(units = 15,    # 输出大小
-                activation = 'relu', #激活函数
-                )
-          )
-model.add(Dense(units = 1,    # 输出大小
-                activation = 'linear', #激活函数
-                )
-          )
-print(model.summary())  # 打印网络层次结构
+#  -------------------------- 4、模型训练 （model()类型的模型）  -------------------------------
+import keras
+class MLPmodel(keras.Model):
+    def __init__(self):
+        super(MLPmodel, self).__init__(name='mlp')
+        self.dense1 = keras.layers.Dense(10,activation='relu')
+        self.dropout = keras.layers.Dropout(0.2)
+        self.dense2 = keras.layers.Dense(15,activation='relu')
+        self.dense3 = keras.layers.Dense(1,activation='linear')
+
+    def call(self, inputs):
+        x = self.dense1(inputs)
+        x = self.dropout(x)
+        x = self.dense2(x)
+        x = self.dense3(x)
+        return x
+
+model = MLPmodel()
+print(model)  # 打印网络层次结构
 model.compile(loss='mse',  # 损失函数：均方误差
               optimizer='adam', # 优化器：adam
               )
-
-history = model.fit(x_train, y_train, # 训练集
+predict = model.fit(x_train, y_train, # 训练集
                     epochs=200,  # 迭代次数
                     batch_size=200,  # 每次用来梯度下降的批处理数据大小
                     verbose=2,  # verbose：日志冗长度，int：冗长度，0：不输出训练过程，1：输出训练进度，2：输出每一个epoch
                     validation_data  =  (x_valid, y_valid)  # 验证集
                    )
-#  -------------------------- 4、模型训练 （Sequential()类型的模型）  -------------------------------
+#  -------------------------- 模型训练 （model()类型的模型）  -------------------------------
 
 #  -------------------------- 5、模型可视化    ------------------------------
 import matplotlib.pyplot as plt  # 导入包
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
+plt.plot(predict.history['loss'])
+plt.plot(predict.history['val_loss'])
 plt.title('Model loss')
 plt.ylabel('Loss')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Test'], loc='upper left') # loc:图例位置
 plt.show()
-#  -------------------------- 5、模型可视化    ------------------------------
+#  -------------------------- 模型可视化    ------------------------------
 
 #  -------------------------- 6、模型保存和预测    ------------------------------
 # 导入包
 from keras.utils import plot_model
 from keras.models import load_model
 
-model.save('model_MIP_HousePredict_sequential.h5') # 保存模型
-plot_model(model, to_file='model_MIP_HousePredict_sequential.png', show_shapes=True) #模型可视化 pip install pydot
+model.save('model_MIP_HousePredict_model.h5') # 保存模型
+plot_model(model, to_file='model_MIP_HousePredict_model.png', show_shapes=True) #模型可视化 pip install pydot
 y_new = model.predict(x_valid) # 预测
 # 反归一化
 min_max_scaler.fit(y_valid_pd)
 y_new = min_max_scaler.inverse_transform(y_new)
-#  -------------------------- 6、模型保存和预测    ------------------------------
+#  --------------------------模型保存和预测    ------------------------------
