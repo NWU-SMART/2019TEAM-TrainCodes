@@ -69,3 +69,29 @@ y_valid=MinMaxScaler(y_valid)
 #  -------------------------- 3、数据归一化  -------------------------------
 
 #  -------------------------- 4、模型训练
+
+epoch=5
+lr=0.03
+net=nn.Sequential(
+    nn.Linear(x_train_pd.shape[1],10),
+    nn.ReLU(),
+    nn.Dropout(0.2),
+    nn.Linear(10,15),
+    nn.ReLU(),
+    nn.Linear(10,1),
+    nn.Linear()
+)
+loss=nn.CrossEntropyLoss()
+optimizer=torch.optim.adam(net.parameters(),lr=lr)
+for i in range(epoch):
+    out=net(x_train)
+    loss=loss(out,y_train)
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+    num_correct=0
+    out2=net(x_valid)
+    predict=torch.max(out2,1)
+    num_correct+=(predict==y_valid).sum()
+    accuracy=num_correct.numpy()/len(x_valid)
+    print("第%d次迭代。准确率为%f"%(epoch+1,accuracy))
