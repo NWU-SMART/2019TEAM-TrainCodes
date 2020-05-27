@@ -28,7 +28,7 @@ x_train = f['x'][:404]  # 下标0到下标403
 y_train = f['y'][:404]
 # 测试数据
 x_valid = f['x'][404:]  # 下标404到下标505
-y_valid = f['y'][404:]
+y_valid = f['y'][404:] 
 f.close()   # 关闭文件
 
 # 转成DataFrame格式方便数据处理    DataFrame格式可理解为一张表
