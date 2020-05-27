@@ -6,11 +6,11 @@
 
 版本号：Versoin 1.0
 
-修改日期：
+修改日期：2020.5.27
 
-修改人：
+修改人：于林生
 
-修改内容： /
+修改内容：将Pytorch的几种方法写入 /（将原来程序的错误改正(中间漏了一个层)）
 
 /------------------ 开发者信息 --------------------*/
 '''
@@ -97,12 +97,13 @@ y_train = data['label'].tolist()
 # print(x_train)
 # print(y_train)
 # 将数据转换为longtensor型
+y_train = torch.LongTensor(y_train)
 x_train = torch.LongTensor(x_train)
-x_train = torch.LongTensor(x_train)
+
 
 
 # 建立模型
-
+# /*------------------ 第一种利用类继承方式 --------------------*/
 class Net(nn.Module):
     def __init__(self):
         super(Net,self).__init__()
@@ -120,10 +121,62 @@ class Net(nn.Module):
         data = self.dropout(data)
         data = self.Flatten(data)
         data = self.dense(data)
+        data = self.relu(data)
         data = self.dropout2(data)
         data = self.dense1(data)
         y_predict = self.softmax(data)
         return y_predict
+# /*------------------ 第二种利用sequential--------------------*/
+
+# Net = torch.nn.Sequential(
+#     torch.nn.Embedding(num_embeddings=1000,embedding_dim=32),
+#     torch.nn.Dropout(0.2),
+#     torch.nn.Flatten(),
+#     torch.nn.Linear(in_features=1600,out_features=256),
+#     torch.nn.ReLU(),
+#     torch.nn.Dropout(0.25),
+#     torch.nn.Linear(in_features=256,out_features=10),
+#     torch.nn.Softmax()
+# )
+# /*------------------ 第三种利用sequential+ OrderedDict--------------------*/
+# from collections import OrderedDict
+#
+# class Net(torch.nn.Module):
+#     def __init__(self):
+#         super(Net,self).__init__()
+#         self.model = torch.nn.Sequential(
+#            OrderedDict([
+#                ('embedding',torch.nn.Embedding(num_embeddings=1000,embedding_dim=32)),
+#                ('dropout1',torch.nn.Dropout(0.2)),
+#                ('flatten',torch.nn.Flatten()),
+#                ('dense1',torch.nn.Linear(in_features=1600,out_features=256)),
+#                ('relu',torch.nn.ReLU()),
+#                ('dropout2',torch.nn.Dropout(0.25)),
+#                ('dense2',torch.nn.Linear(in_features=1600,out_features=256)),
+#                ('softmax',torch.nn.Softmax())
+#
+#             ]))
+#     def forward(self,x):
+#         result = self.model(x)
+#         return x
+# /*------------------ 第四种利用类继承add_module的方式--------------------*/
+# class Net(torch.nn.Module):
+#     def __init__(self):
+#         super(Net,self).__init__()
+#         self.input = torch.nn.Sequential()
+#         self.input.add_module('embedding',torch.nn.Embedding(num_embeddings=1000,embedding_dim=32))
+#         self.input.add_module('dropout1',torch.nn.Dropout(0.2))
+#         self.input.add_module('flatten',torch.nn.Flatten())
+#         self.input.add_module('dense',torch.nn.Linear(in_features=1600,out_features=256))
+#         self.input.add_module('dropout2',torch.nn.Dropout(0.25))
+#         self.input.add_module('relu',torch.nn.ReLU())
+#         self.input.add_module('softmax',torch.nn.Softmax())
+#     def forward(self,x):
+#         result = input(x)
+#         return result
+
+
+
 #     调用模型
 model = Net()
 # 选择交叉熵损失函数
@@ -134,7 +187,7 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
 # 定义训练批次
 epoch = 10
 for i in range(epoch):
-    # 调用模型预测（有错误）
+    # 调用模型预测（有点warning可以正常运行，torch版本太高容易报softmax的warning）
     y_pred = model(x_train)
     # 求损失
     loss = loss_f(y_pred,y_train)
@@ -145,6 +198,9 @@ for i in range(epoch):
     # 权值更新
     optimizer.step()
 #     画出预测值和真实值之间的区别
-plt.scatter(y_train,y_pred)
+    print(i, loss.item())
+    plt.plot(i, loss.item())
+    plt.scatter(i, loss.item())
 plt.show()
+
 
