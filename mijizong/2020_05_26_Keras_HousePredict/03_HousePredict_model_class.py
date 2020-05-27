@@ -19,16 +19,11 @@
 
 
 #  -------------------------- 1、导入需要包 --------------------------------
-from keras.preprocessing import sequence
-from keras.models import Sequential
-from keras.datasets import boston_housing
-from keras.layers import Dense, Dropout
-from keras.utils import multi_gpu_model
-from keras import regularizers, Model, Input  # 正则化
-import matplotlib.pyplot as plt
+from keras import Input  # 正则化
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
+import keras
 #  -------------------------- 1、导入需要包 --------------------------------
 
 
@@ -73,25 +68,32 @@ y_valid = min_max_scaler.transform(y_valid_pd)
 #  -------------------------- 3、数据归一化  ------------------------------
 
 
-#  -------------------------- 4、API模型训练   -------------------------------
-inputs=Input(shape=(x_train_pd.shape[1],))
-x=Dense(units=10,activation='relu')(inputs)
-x = Dropout(0.2)(x)
-x=Dense(units=15,activation='relu')(x)
+#  -------------------------- 4、model_class继承训练   -------------------------------
+inputs = Input(shape=(x_train_pd.shape[1],))
+class HousePredict(keras.Model):
+    def __init__(self,use_dp=True):
+        super(HousePredict, self).__init__(name='MLP')
+        self.use_dp = use_dp                                         # 执行dropout操作
+        self.dense1 = keras.layers.Dense(units=10, activation='relu')# 定义该层有10个神经元，relu激活
+        self.dp = keras.layers.Dropout(0.2)                          # 舍弃20%
+        self.dense2 = keras.layers.Dense(units=15, activation='relu')# 定义该层有15个神经元，relu激活
+        self.dense3 = keras.layers.Dense(units=1, activation='linear')# 定义该层有1个神经元,线性激活
 
-predictions = Dense(1, activation='linear')(x)
-model = Model(inputs=input, outputs=predictions)
-model.compile(loss='MSE',                       # 损失均方误差
-              optimizer='adam',                 # 优化器选择adam
-              metrics=['accuracy'])             # 评价函数使用accuracy   编译模型
-model.summary()                                 # 输出模型各层的参数状况
-model.fit(x_train, y_train, epochs=200,         # 迭代200轮
-            batch_size=200,                     # 每次用来梯度下降的批处理数据大小为200
-            verbose=2,                          # 日志冗长度为2
-            validation_data  =  (x_valid, y_valid)  # 验证集
-          )
 
-#  -------------------------- 4、API模型训练    -------------------------------
+    def call(self, inputs):
+        x = self.dense1(inputs)                         # 全连接层
+        if self.use_dp:
+            x = self.dp(x)
+        x=self.dense2(x)
+        x=self.dense3(x)
+        return x
+
+model = HousePredict()
+model.compile(loss = 'MSE', optimizer = 'adam')                       # 编译模型
+predictions = model.fit(x_train, y_train, epochs=200, batch_size=200,# 开始训练
+                verbose=2, validation_data=(x_valid, y_valid)) # verbose = 2 指每个epoch输出一行记录    后面为验证集
+
+#  -------------------------- 4、model_class继承训练    -------------------------------
 
 
 #  -------------------------- 5、模型可视化    ------------------------------

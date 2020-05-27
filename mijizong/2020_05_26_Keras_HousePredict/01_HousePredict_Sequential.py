@@ -19,6 +19,8 @@
 
 
 #  -------------------------- 1、导入需要包 --------------------------------
+import os
+os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'  #注意修改你的路径
 from keras.preprocessing import sequence
 from keras.models import Sequential
 from keras.datasets import boston_housing
