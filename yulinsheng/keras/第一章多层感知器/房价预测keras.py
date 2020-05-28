@@ -118,7 +118,7 @@ y_valid = min_max_scaler.fit_transform(y_valid)
 # x_train_1 = Dropout(0.2)(x_train_1)
 # x_train_1 = Dense(units=15,activation='relu')(x_train_1)
 # y_pred = Dense(units=1,activation='relu')(x_train_1)
-# model = Model(input=inputs,outputs=y_pred)
+# model = Model(inputs=inputs,outputs=y_pred)
 
 # /------------------模型定义--------------------*/
 # 类继承的方式

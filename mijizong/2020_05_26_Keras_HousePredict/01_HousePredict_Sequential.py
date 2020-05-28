@@ -19,12 +19,14 @@
 
 
 #  -------------------------- 1、导入需要包 --------------------------------
+import os
+os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'  #注意修改你的路径
 from keras.preprocessing import sequence
 from keras.models import Sequential
 from keras.datasets import boston_housing
 from keras.layers import Dense, Dropout
 from keras.utils import multi_gpu_model
-from keras import regularizers, Model, Input  # 正则化
+from keras import regularizers  # 正则化
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -73,32 +75,30 @@ y_valid = min_max_scaler.transform(y_valid_pd)
 #  -------------------------- 3、数据归一化  ------------------------------
 
 
-#  -------------------------- 4、API模型训练   -------------------------------
-inputs=Input(shape=(x_train_pd.shape[1],))
-x=Dense(units=10,activation='relu')(inputs)
-x = Dropout(0.2)(x)
-x=Dense(units=15,activation='relu')(x)
-
-predictions = Dense(1, activation='linear')(x)
-model = Model(inputs=input, outputs=predictions)
-model.compile(loss='MSE',                       # 损失均方误差
-              optimizer='adam',                 # 优化器选择adam
-              metrics=['accuracy'])             # 评价函数使用accuracy   编译模型
-model.summary()                                 # 输出模型各层的参数状况
-model.fit(x_train, y_train, epochs=200,         # 迭代200轮
-            batch_size=200,                     # 每次用来梯度下降的批处理数据大小为200
-            verbose=2,                          # 日志冗长度为2
-            validation_data  =  (x_valid, y_valid)  # 验证集
-          )
-
-#  -------------------------- 4、API模型训练    -------------------------------
+#  -------------------------- 4、Sequential模型训练   -------------------------------
+model = Sequential()                                    # 初始化，很重要！
+model.add(Dense(units = 10,                             #定义该层有10个神经元
+                activation='relu',                      #该层使用relu激活函数
+                input_shape=(x_train_pd.shape[1],)))    #表示输入的尺寸
+model.add(Dropout(0.2))                                 #舍弃50%
+model.add(Dense(units = 15,activation='relu' ))
+model.add(Dense(units = 1, activation='linear'))
+print(model.summary())                                  #打印网络层次结构
+model.compile(loss='mse',                               #损失均方误差
+              optimizer='adam', )                       #优化器选择adam
+                                                        # 模型编译
+history = model.fit(x_train, y_train,epochs=200,        #迭代200轮
+                    batch_size=200,                     #每次用来梯度下降的批处理数据大小为200
+                    verbose=2,                          #日志冗长度为2
+                    validation_data = (x_valid, y_valid))#验证集
+#  -------------------------- 4、Sequential模型训练    -------------------------------
 
 
 #  -------------------------- 5、模型可视化    ------------------------------
 import matplotlib.pyplot as plt
 # 绘制训练 & 验证的损失值
-plt.plot(predictions.history['loss'])
-plt.plot(predictions.history['val_loss'])
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
 plt.title('Model loss')
 plt.ylabel('Loss')
 plt.xlabel('Epoch')
