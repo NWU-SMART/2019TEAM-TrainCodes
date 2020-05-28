@@ -161,9 +161,46 @@ model.compile(loss='categorical_crossentropy',optimizer=optimize,metrics=['accur
 # /-----------------  模型建立 --------------------*/
 
 # /-----------------  模型训练 --------------------*/
-history = model.fit(x_train,y_train,batch_size=32,epochs=5,validation_data=(x_test,y_test),
+# 通过判断是否使用图片增强技术去训练图片
+data_augmentation = True
+if not data_augmentation:
+    print("没有使用图像增强技术")
+    history = model.fit(x_train,y_train,batch_size=32,epochs=5,validation_data=(x_test,y_test),
                     shuffle=True)#随机打乱样本顺序
-
+else:
+    print("使用了图像增强技术")
+    data = ImageDataGenerator(featurewise_center = False,#将输入数据的均值设为0
+                              samplewise_center = False,#将每个样本的均值设为0
+                              featurewise_std_normalization = False,#逐个特征将输入数据除以标准差
+                              samplewise_std_normalization = False,#将每个输入除以标准差
+                              zca_whitening=False,#是否使用zca白化（降低输入的冗余性）
+                              # ZCA白化主要用于去相关性，且尽量使白化后的数据接近原始输入数据
+                              zca_epsilon=1e-06,#利用阈值构建低通滤波器对输入数据进行滤波
+                              rotation_range=0,#随机旋转的度数
+                              width_shift_range=0.1,#水平随机移动宽度的0.1
+                              height_shift_range=0.1,#垂直随机移动高度的0.1
+                              shear_range=0.,#不随机剪切
+                              zoom_range=0.,#不随机缩放
+                              channel_shift_range=0.,#通道不随机转换
+                              fill_mode='nearest',#边界以外的点的填充模式aaaaaaaa|abcd|dddddddd
+                              # 靠近哪个就用哪个填充，如靠近a那么就用a填充，靠近d就用d填充
+                              cval=0.,#边界之外点的值
+                              horizontal_flip=True,#随机水平翻转
+                              vertical_flip=False,#不随机垂直翻转
+                              rescale=None,#不进行缩放（若不为0和None将数据乘以所提供的值）
+                              preprocessing_function=None,#应用于输入的函数
+                              data_format=None,#图像数据格式
+                              validation_split=0.0#用于验证图像的比例
+                              )
+    data.fit(x_train)
+    history = model.fit_generator(data.flow(x_train, y_train,
+                                     batch_size=32),
+                        # 按batch_size大小从x,y生成增强数据
+                        epochs=5,#训练批次
+                        steps_per_epoch=x_train.shape[0]//32,#每个批次训练的样本
+                        validation_data=(x_test, y_test),#验证集选择
+                        workers=10  # 最大进程数
+                       )
 # /-----------------  模型训练 --------------------*/
 
 
