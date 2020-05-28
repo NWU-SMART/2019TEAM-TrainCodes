@@ -1,9 +1,9 @@
 # ----------------------------作者信息--------------------------------
 # -*- coding: utf-8 -*-
-# @Time: 2020/5/26 11:33
+# @Time: 2020/5/27 11:15
 # @Author: wangshengkang
 # @Version: 1.0
-# @Filename: 12zhaopin.py
+# @Filename: 21zhaopinCNNtorch.py
 # @Software: PyCharm
 # ----------------------------作者信息-----------------------------------
 # --------------------------------代码布局---------------------------------------
@@ -70,7 +70,7 @@ print(job_detail_pd.head(5))
 
 # ----------------------------------3分词和提取关键词----------------------------------
 # ----------------------------------4建立字典----------------------------------
-token = Tokenizer(num_words=2000)  # 建立2000个词的字典
+token = Tokenizer(num_words=80)  # 建立2000个词的字典
 # 按单词出现次数排序，排序前2000的单词列入词典中
 token.fit_on_texts(job_detail_pd['Job_Description_key_word'])
 
@@ -81,10 +81,8 @@ Job_Description_Seq_Padding = sequence.pad_sequences(Job_Description_Seq, maxlen
 x_train = Job_Description_Seq_Padding  # 数字列表作为训练集
 y_train = job_detail_pd['label'].tolist()  # 标签
 
-x_train = torch.LongTensor(x_train)  # 转化为tensor形式
+x_train = torch.LongTensor(x_train)# 转化为tensor形式
 y_train = torch.LongTensor(y_train)
-
-
 # TypeError: embedding(): argument 'indices' (position 2) must be Tensor, not numpy.ndarray
 
 # ----------------------------------4建立字典----------------------------------
@@ -93,27 +91,36 @@ y_train = torch.LongTensor(y_train)
 class zhaopin(nn.Module):
     def __init__(self):
         super(zhaopin, self).__init__()
+        self.embedding=nn.Embedding(num_embeddings=80, embedding_dim=32)
         self.model = nn.Sequential(
-            nn.Embedding(num_embeddings=2000, embedding_dim=32),
-            nn.Dropout(0.2),
-            nn.Flatten(),  # pycharm会显示黄块找不到，但是可以运行，我的torch版本为1.15.0
-            nn.Linear(1600, 256),
+            nn.Conv1d(32,256,3),
             nn.ReLU(),
-            nn.Dropout(0.25),
-            nn.Linear(256, 10),
+            nn.MaxPool1d(3,3),
+            nn.Conv1d(256,32,3),
+            nn.ReLU(),
+            nn.Flatten(),
+            nn.Dropout(0.3),
+            nn.BatchNorm1d(544),
+            nn.Linear(544,256),
+            nn.Dropout(0.2),
+            nn.Linear(256,10),
             nn.Softmax()
         )
 
     def forward(self, x):
-        out = self.model(x)
+        out=self.embedding(x)
+        #RuntimeError: Given groups=1, weight of size [256, 32, 3], expected input[44831, 50, 32] to have 32 channels, but got 50 channels instead
+        out=out.permute(0,2,1)
+        out = self.model(out)
 
         return out
 
 
 model = zhaopin()
+print(model)
 epochs = 5
 loss = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters())
+optimizer = torch.optim.Adam(model.parameters(),lr=0.001)
 model.train()
 iteration = []  # list存放epoch数
 loss_total = []  # list存放损失
@@ -127,7 +134,7 @@ for epoch in range(epochs):
     optimizer.step()
     print('epoch %3d, loss %10.7f' % (epoch, train_loss))
 
-print('loss_total\n', loss_total)
+print('loss_total\n',loss_total)
 plt.plot(iteration, loss_total, label="loss")  # iteration和loss对应画出
 plt.title('torch loss')  # 题目
 plt.xlabel('Epoch')  # 横坐标
@@ -135,7 +142,7 @@ plt.ylabel('Loss')  # 纵坐标
 plt.legend(['train'], loc='upper left')  # 图线示例
 plt.show()  # 画图
 
-torch.save(model.state_dict(), "housetorch.pth")  # 保存模型参数
+torch.save(model.state_dict(), "zhaopincnntorch.pth")  # 保存模型参数
 # model.load_state_dict(torch.load('housetorch.pth'))  # 加载模型
 model.eval()  # 评估模式
 print(x_train[0])  # 打印训练集第一行的数字序列

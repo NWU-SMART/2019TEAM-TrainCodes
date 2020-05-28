@@ -1,6 +1,6 @@
 # ----------------------开发者信息-----------------------------------------
  # -*- coding: utf-8 -*-
- # @Time: 2020/5/26 20:02
+ # @Time: 2020/5/27 22:12
  # @Author: MiJizong
  # @Version: 1.0
  # @FileName: 1.0.py
@@ -9,7 +9,7 @@
 
 
 # ----------------------   代码布局： --------------------------------------
-# 1、导入 Keras, matplotlib, numpy, sklearn 和 panda的包
+# 1、导入 torch、Keras, matplotlib, numpy, sklearn 和 panda的包
 # 2、房价训练数据导入
 # 3、数据归一化
 # 4、模型训练
@@ -19,20 +19,18 @@
 
 
 #  -------------------------- 1、导入需要包 --------------------------------
-from keras.preprocessing import sequence
-from keras.models import Sequential
-from keras.datasets import boston_housing
-from keras.layers import Dense, Dropout
-from keras.utils import multi_gpu_model
-from keras import regularizers  # 正则化
-import matplotlib.pyplot as plt
+from keras import Input  # 正则化
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
+import torch
+import torch.nn.functional as F
+
 #  -------------------------- 1、导入需要包 --------------------------------
 
 
 #  -------------------------- 2、房价训练和测试数据载入 ---------------------
+
 path = 'D:\\Office_software\\PyCharm\\keras_datasets\\boston_housing.npz'
 f = np.load(path)  # 读取上面路径的数据
 # 404个数据用于训练，102个数据用于测试
@@ -73,30 +71,39 @@ y_valid = min_max_scaler.transform(y_valid_pd)
 #  -------------------------- 3、数据归一化  ------------------------------
 
 
-#  -------------------------- 4、Sequential模型训练   -------------------------------
-model = Sequential()                                    # 初始化，很重要！
-model.add(Dense(units = 10,                             #定义该层有10个神经元
-                activation='relu',                      #该层使用relu激活函数
-                input_shape=(x_train_pd.shape[1],)))    #表示输入的尺寸
-model.add(Dropout(0.2))                                 #舍弃50%
-model.add(Dense(units = 15,activation='relu' ))
-model.add(Dense(units = 1, activation='linear'))
-print(model.summary())                                  #打印网络层次结构
-model.compile(loss='mse',                               #损失均方误差
-              optimizer='adam', )                       #优化器选择adam
-                                                        # 模型编译
-history = model.fit(x_train, y_train,epochs=200,        #迭代200轮
-                    batch_size=200,                     #每次用来梯度下降的批处理数据大小为200
-                    verbose=2,                          #日志冗长度为2
-                    validation_data = (x_valid, y_valid))#验证集
-#  -------------------------- 4、Sequential模型训练    -------------------------------
+#  -------------------------- 4、model_class继承训练   -------------------------------
+inputs = Input(shape=(x_train_pd.shape[1],)) #原始数据
+class HousePredict(torch.nn.Module):
+    def __init__(self):
+        super(HousePredict,self).__init__()
+        self.dense1 = torch.nn.Linear(inputs,10), #将原始数据转化为10维
+        self.dense2 = torch.nn.Linear(10,15),
+        self.dense3 = torch.nn.Linear(15, 1)
+        self.dp = torch.nn.Dropout(0.2),
+
+    def forward(self,x):
+        x = self.dense1(x)
+        x = self.dp(x)
+        x = F.relu(self.dense2(x))
+        x = self.dense3(x)
+        return x
+
+
+
+model = HousePredict()
+print(model)
+model.compile(loss = 'MSE', optimizer = 'adam')                       # 编译模型
+predictions = model.fit(x_train, y_train, epochs=200, batch_size=200,# 开始训练
+                verbose=2, validation_data=(x_valid, y_valid)) # verbose = 2 指每个epoch输出一行记录    后面为验证集
+
+#  -------------------------- 4、model_class继承训练    -------------------------------
 
 
 #  -------------------------- 5、模型可视化    ------------------------------
 import matplotlib.pyplot as plt
 # 绘制训练 & 验证的损失值
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
+plt.plot(predictions.history['loss'])
+plt.plot(predictions.history['val_loss'])
 plt.title('Model loss')
 plt.ylabel('Loss')
 plt.xlabel('Epoch')
