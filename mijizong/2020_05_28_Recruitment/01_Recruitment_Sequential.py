@@ -27,7 +27,6 @@ from keras.layers import Dense, Dropout,  Flatten
 from keras.layers.embeddings import Embedding
 #  -------------------------- 1、导入需要包 -------------------------------
 
-
 #  -------------------------- 2、招聘数据数据导入 -------------------------------
 # 数据目录:  D:\Office_software\PyCharm\keras_datasets\job_detail_dataset.csv
 job_detail_pd = pd.read_csv('D:\\Office_software\\PyCharm\\keras_datasets\\job_detail_dataset.csv', encoding='UTF-8')
