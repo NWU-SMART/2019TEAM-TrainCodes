@@ -71,20 +71,20 @@ model.add(Dense(units = 10,   # 输入维10，输出为1的全连接层，relu�
                )
          )
 
-model.add(Dropout(0.2))  # 丢弃神经元链接概率20%#
+model.add(Dropout(0.2))    # 丢弃神经元链接概率20%#
 model.add(Dense(units = 15,activation='relu'))
-model.add(Dense(units = 1,    activation='linear'))  # 线性激励函数 回归一般在输出层用这个激励函数
-print(model.summary())  # 打印网络层次结构
-model.compile(loss='mse',  # 损失均方误差
+model.add(Dense(units = 1,    activation='linear'))  # 线性激励函数 #
+print(model.summary())           # 打印网络层次结构#
+model.compile(loss='mse',        # 损失均方误差
               optimizer='adam',  # 优化器，优化loss
               metrics=['acc']
-             )#编译模型  keras model.compile(loss='目标函数 ', optimizer='adam', metrics=['accuracy'])#
+             )                   #编译模型  keras model.compile(loss='目标函数 ', optimizer='adam', metrics=['accuracy'])#
 #训练模型#
 history = model.fit(x_train, y_train,
-          epochs=200,  # 迭代次数200
-          batch_size=200,# 每次用来梯度下降的批处理数据大小 200个数据一个批次
-          verbose=2,  # verbose：日志冗长度，int：冗长度，0：不输出训练过程，1：输出训练进度，2：输出每一个epoch
-          validation_data = (x_valid, y_valid), # 验证集
+          epochs=200,            # 迭代次数200
+          batch_size=200,        # 每次用来梯度下降的批处理数据大小 200个数据一个批次
+          verbose=2,             # verbose：日志冗长度，int：冗长度，0：不输出训练过程，1：输出训练进度，2：输出每一个epoch
+          validation_data = (x_valid, y_valid),
           )
 print(model.evaluate(x_valid,y_valid))
 
@@ -95,41 +95,41 @@ x=Dense(15,activation='relu')(x)
 x=Dense(1,activation='linear')(x)
 predictions = Dense(1, activation='linear')(x)
 model = Model(inputs=input, outputs=X)
-model.compile(loss='MSE', optimizer='adam',metrics=['acc'])#编译模型#
-model.fit(x_train, y_train, epochs=200, batch_size=200) #开始训练#
+model.compile(loss='MSE', optimizer='adam',metrics=['acc'])  #编译模型#
+model.fit(x_train, y_train, epochs=200, batch_size=200)      #开始训练#
 
 # -------------------------- 3.model类继承--------------------------#
 class HousePredict(keras.Model):
     def __init__(self, use_dp=True):
         super(HousePredict, self).__init__(name='mlp')
-        self.use_dp = use_dp #进行dropout#
-        self.dense1 = keras.layers.Dense(10, activation='relu')# 输入为10，输出为1的全连接层#
-        self.dense2 = keras.layers.Dense(15, activation='relu')# 输入为15#
-        self.dense3 = keras.layers.Dense(1, activation='linear')# 输入为1,线性激活#
+        self.use_dp = use_dp                                     #进行dropout#
+        self.dense1 = keras.layers.Dense(10, activation='relu')  # 输入为10，输出为1的全连接层#
+        self.dense2 = keras.layers.Dense(15, activation='relu')  # 输入为15#
+        self.dense3 = keras.layers.Dense(1, activation='linear') # 输入为1,线性激活#
         self.dp = keras.layers.Dropout(0.2)#dropout为0.2#
 
     def call(self, inputs):
-        x = self.dense1(inputs)   #1
+        x = self.dense1(inputs)  #1
         if self.use_dp:
-            x = self.dp(x)
+            x = self.dp(x)       #dropout
             #if self.use_bn:
-        x=self.dense2(x)  #2
-        x=self.dense3(x)  #3
+            x=self.dense2(x)     #2
+            x=self.dense3(x)     #3
     model = HousePredict()
-    model.compile()  #编译模型#
-    model.fit(x_train, y_train, epochs=200, batch_size=200)#开始训练#
+    model.compile()              #编译模型#
+    model.fit(x_train, y_train, epochs=200, batch_size=200)  #开始训练#
 
 #  -------------------------- 模型可视化    ------------------------------#
-import matplotlib.pyplot as plt   #matplotlib是python的2D绘图库
+import matplotlib.pyplot as plt         #matplotlib是python的2D绘图库
 # 绘制训练集 & 测试集的损失值#
-plt.plot(history.history['loss'])#历史保留的训练集损失
-plt.plot(history.history['val_loss'])#历史保留的测试集损失
+plt.plot(history.history['loss'])       #历史保留的训练集损失
+plt.plot(history.history['val_loss'])   #历史保留的测试集损失
 plt.title('Model loss')
 plt.ylabel('Loss')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Test'], loc='upper left')
 plt.show()
-plt.plot(history.history['acc'],c='b')##history保留的训练集accuracy
+plt.plot(history.history['acc'],c='b')    #history保留的训练集accuracy
 plt.plot(history.history['val_acc'],c='r')#history保留的测试集accuracy
 plt.show()
 

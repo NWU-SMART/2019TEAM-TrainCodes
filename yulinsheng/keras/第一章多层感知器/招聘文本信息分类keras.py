@@ -5,11 +5,11 @@
 #
 # 版本号：Versoin 1.0
 #
-# 修改日期：2020.5.26
+# 修改日期：2020.5.27
 #
 # 修改人：于林生
 #
-# 修改内容：将keras三种定义方法写入 /
+# 修改内容：将keras三种定义方法写入 /将原先第三种方法存在的错误改正
 # /------------------ 开发者信息 --------------------*/
 
 # /------------------ 代码布局 --------------------*/
@@ -111,6 +111,7 @@ job_description = sequence.pad_sequences(description,maxlen=50)
 # 选取训练集
 x_train = job_description
 y_train = data['label'].tolist()
+y_train = np.array(y_train)
 print(x_train.shape)
 print()
 
@@ -149,44 +150,44 @@ epochs = 5
 # ])
 # /------------------ API类型--------------------*/
 #
-from keras.layers import Input
-from keras.models import Model
-input = Input(shape=(50,))
-train_API = Embedding(output_dim=32,input_dim=1000)(input)
-train_API = Dropout(0.2)(train_API)
-train_API = Flatten()(train_API)
-train_API = Dense(units=256,activation='relu')(train_API)
-train_API = Dropout(0.25)(train_API)
-result = Dense(units=10,activation='softmax')(train_API)
-model = Model(input=input,outputs=result)
+# from keras.layers import Input
+# from keras.models import Model
+# input = Input(shape=(50,))
+# train_API = Embedding(output_dim=32,input_dim=1000)(input)
+# train_API = Dropout(0.2)(train_API)
+# train_API = Flatten()(train_API)
+# train_API = Dense(units=256,activation='relu')(train_API)
+# train_API = Dropout(0.25)(train_API)
+# result = Dense(units=10,activation='softmax')(train_API)
+# model = Model(input=input,outputs=result)
 
-# 类继承形式(有错误)
-# import keras
-# class MLP(keras.Model):
-#     def __init__(self):
-#         super(MLP,self).__init__(name='mlp')
-#         self.embedding = keras.layers.Embedding(output_dim=32,
-#                                                 input_dim=1000,input_length=50)
-#         self.dense1 = keras.layers.Dense(units=256,activation='relu')
-#         self.dense2 = keras.layers.Dense(units=10,activation='softmax')
-#         self.dropout1 = keras.layers.Dropout(0.2)
-#         self.dropout2 = keras.layers.Dropout(0.25)
-#         self.flatten = keras.layers.Flatten()
-#
-#     def call(self,x):
-#         x = self.embedding(x)
-#         x = self.dropout1(x)
-#         x = self.flatten(x)
-#         x = self.dense1(x)
-#         x = self.dropout2(x)
-#         x = self.dense2(x)
-#         return x
+# 类继承形式(没有办法保存模型，只能保存训练的模型的参数)
+import keras
+class MLP(keras.Model):
+    def __init__(self):
+        super(MLP,self).__init__(name='mlp')
+        self.embedding = keras.layers.Embedding(output_dim=32,
+                                                input_dim=1000,input_length=50)
+        self.dense1 = keras.layers.Dense(units=256,activation='relu')
+        self.dense2 = keras.layers.Dense(units=10,activation='softmax')
+        self.dropout1 = keras.layers.Dropout(0.2)
+        self.dropout2 = keras.layers.Dropout(0.25)
+        self.flatten = keras.layers.Flatten()
+
+    def call(self,x):
+        x = self.embedding(x)
+        x = self.dropout1(x)
+        x = self.flatten(x)
+        x = self.dense1(x)
+        x = self.dropout2(x)
+        x = self.dense2(x)
+        return x
 
 # /------------------ 模型建立--------------------*/
 
 
 # /------------------ 模型训练保存--------------------*/
-# model = MLP()
+model = MLP()
 model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
