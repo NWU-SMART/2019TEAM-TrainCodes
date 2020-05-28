@@ -92,7 +92,36 @@ class Model(torch.nn.Module):
         x = self.dense(x)
         return x
 
+#  ------------------------- 4.3 OrderedDict子类   ---------------------------#
+class model(torch.nn.Module):
+    def __init__(self):
+        super(model, self).__init__()
+        self.layer = nn.Sequential(OrderedDict([('dense1', torch.nn.Linear(13, 10)),  #三个全连接#
+                                                ('dropout', torch.nn.Dropout(0.2)), # dropout #
+                                                ('dense2', torch.nn.Linear(10, 15)),
+                                                ('dense3', torch.nn.Linear(15, 1))])
+                                         )
+    def forward(self, x):
+        x = self.dense(x)
+        return x
 
+#  ------------------------- 4.4 类继承   ---------------------------#
+class Model(torch.nn.Module):
+     def __init__(self):
+         super(Model,self).__init__()
+         self.layer = torch.nn.Sequential()
+         self.dense1 = torch.nn.Linear(13,10)
+         self.dense2 = torch.nn.Linear(10,15)
+         self.dense3 = torch.nn.Linear(15, 1)
+     def forward(self,x):
+         x = self.dense1(x)
+         x = self.relu(x)
+         x = self.dense2(x)
+         x = self.relu(x)
+         result = self.dense3(x)
+         return result
+
+     
 #  ------------------------- 测试   ---------------------------#
 model = Model()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
