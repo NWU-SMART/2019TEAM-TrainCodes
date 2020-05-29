@@ -124,7 +124,6 @@ model.compile(loss="sparse_categorical_crossentropy", optimizer="adam", metrics=
 history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs,validation_split=0.2)
 #  -------------------------- 5、训练模型 -------------------------------
 
-
 #  -------------------------- 6、保存模型，显示运行结果 -------------------------------
 # 保存模型
 model.save('model_CNN_text.h5')  # 生成模型文件
