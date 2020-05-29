@@ -1,28 +1,22 @@
-# ----------------开发者信息----------------------------
-# 开发者：张涵毓
-# 开发日期：2020年5月28日
-# 内容：招聘信息文本分类-Sequential
+# ----------------开发者信息--------------------------------#
+# 开发者：姜媛
+# 开发日期：2020年5月29日
+# 修改日期：
+# 修改人：
 # 修改内容：
-# 修改者：
-# ----------------开发者信息----------------------------
+# ----------------开发者信息--------------------------------#
 
-# ----------------------代码布局-------------------------------------
-# 1.引入keras，matplotlib，numpy，sklearn，pandas,jieba包
-# 2.导入招聘信息数据
-# 3.分词和提取关键词
-# 4.建立和使用字典
-# 5.训练模型
-# 6.保存模型，分类结果
-# ---------------------------------------------------------------------
-
-#-------------------------1、导入相关包-------------------------------------
+#  -------------------------- 1、导入需要包 -------------------------------
+import keras
 import pandas as pd
 import jieba
 import jieba.analyse as analyse
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing import sequence
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten, MaxPool1D, Conv1D
+from keras.layers import Dense, Dropout, Activation, Flatten, MaxPool1D, Conv1D, Input
+from keras.utils import plot_model
+import matplotlib.pyplot as plt
+'''from keras.models import Model
 from keras.layers.embeddings import Embedding
 from keras.utils import multi_gpu_model
 from keras.models import load_model
@@ -34,12 +28,14 @@ from sklearn.model_selection import train_test_split
 from keras.utils.np_utils import to_categorical
 from sklearn.preprocessing import LabelEncoder
 from keras.layers import BatchNormalization
-#-------------------------1、导入相关包-------------------------------------
+'''
+#  -------------------------- 1、导入需要包 -------------------------------
 
-#-------------------------2、导入招聘信息数据----------------------------------
-#读取数据路径  中文编码
-job_detail_pd = pd.read_csv('D:\keras_data\job_detail_dataset.csv', encoding='UTF-8')
-print(job_detail_pd.head(5))  #显示前5个数据
+
+#  -------------------------- 2、招聘数据数据导入 -------------------------------
+# 文件放置在目录  D:\keras_datasets\job_detail_dataset.csv
+job_detail_pd = pd.read_csv('C:\\Users\\HP\\Desktop\\job_detail_dataset.csv', encoding='UTF-8')
+print(job_detail_pd.head(5))
 label = list(job_detail_pd['PositionType'].unique())  # 标签
 print(label)
 
@@ -49,12 +45,15 @@ def label_dataset(row):
     num_label = label.index(row)  # 返回label列表对应值的索引
     return num_label
 
+
 job_detail_pd['label'] = job_detail_pd['PositionType'].apply(label_dataset)
 job_detail_pd = job_detail_pd.dropna()  # 删除空行
 job_detail_pd.head(5)
-#-------------------------2、导入招聘信息数据----------------------------------
 
-#-------------------------3、分词和提取关键词------------------------------------
+
+#  -------------------------- 2、招聘数据数据导入 -------------------------------
+
+#  -------------------------- 3、分词和提取关键词 -------------------------------
 # 中文分词
 def chinese_word_cut(row):
     return " ".join(jieba.cut(row))
@@ -67,7 +66,7 @@ job_detail_pd.head(5)
 # 提取关键词
 def key_word_extract(texts):
     return " ".join(analyse.extract_tags(texts, topK=50, withWeight=False, allowPOS=()))
-#参数：待提取关键词的文本；返回关键词的数量 ；是否返回每个关键词的权重；词性过滤，为空表示不过滤，若提供则仅返回符合词性要求的关键词
+
 
 job_detail_pd['Job_Description_key_word'] = job_detail_pd.Job_Description.apply(key_word_extract)
 #  -------------------------- 3、分词和提取关键词 -------------------------------
@@ -82,71 +81,65 @@ Job_Description_Seq = token.texts_to_sequences(job_detail_pd['Job_Description_ke
 
 # 截长补短让所有“数字列表”长度都是50
 Job_Description_Seq_Padding = sequence.pad_sequences(Job_Description_Seq, maxlen=50)
-
 x_train = Job_Description_Seq_Padding
-y_train = job_detail_pd['label'].tolist() #生成列表，但和list不同
+y_train = job_detail_pd['label'].tolist()
 #  -------------------------- 4、建立字典，并使用 -------------------------------
 
 #  -------------------------- 5、训练模型 -------------------------------
 batch_size = 256
 epochs = 5
-
-model = Sequential()
-model.add(Embedding(output_dim=32,  # 词向量的维度
-                    input_dim=2000,  # Size of the vocabulary 字典大小
-                    input_length=50  # 每个数字列表的长度
-                    )
-          )
-
-model.add(Dropout(0.2))
-model.add(Flatten())  # 平展
-model.add(Dense(units=256,
-                activation="relu"))
-model.add(Dropout(0.25))
-model.add(Dense(units=10,
-                activation="softmax"))
+inputs = Input(shape=(50,))
 
 
+class ModelCNN(keras.Model):
+    def __init__(self):
+        super(ModelCNN, self).__init__()
+        self.embedding = keras.layers.Embedding(2000, 32)
+        self.conv1D = keras.layers.Conv1D(256, 3, padding='same', activation='relu')
+        self.maxpool1D = keras.layers.MaxPool1D(3, 3, padding='same')
+        self.conv1D = keras.layers.Conv1D(32, 3, padding='same', activation='relu')
+        self.flatten = keras.layers.Flatten()
+        self.dropout = keras.layers.Dropout(0.3)
+        self.batchnormalization = keras.layers.BatchNormalization()
+        self.dense = keras.layers.Dense(256, activation='relu')
+        self.dropout = keras.layers.Dropout(0.2)
+        self.dense = keras.layers.Dense(units=10, activation="softmax")
 
-print(model.summary())  # 打印模型
-# CPU版本
-model.compile(loss="sparse_categorical_crossentropy",  # keras的多类损失函数
-                                                       #都是计算多分类crossentropy的，只是对y的格式要求不同。
-                                                       #1）如果是categorical_crossentropy，那y必须是one-hot处理过的
-                                                       #2）如果是sparse_categorical_crossentropy，那y就是原始的整数形式，数字编码，比如[1, 0, 2, 0, 2]这种
-              optimizer="adam",
-              metrics=["accuracy"]
-              )
+    def call(self, inputs):
+        x = self.embedding(inputs)
+        x = self.conv1D(x)
+        x = self.maxpool1D(x)
+        x = self.conv1D(x)
+        x = self.flatten(x)
+        x = self.dropout(x)
+        x = self.batchnormalization(x)
+        x = self.dense(x)
+        x = self.dropout(x)
+        x = self.dense(x)
+        return x
 
-history = model.fit(
-    x_train,
-    y_train,
-    batch_size=batch_size,
-    epochs=epochs,
-    verbose=2,
-    validation_split=0.2  # 训练集的20%用作验证集
-)
+
+model = ModelCNN()
+model.summary()  # 可视化模型
+model.compile(loss="sparse_categorical_crossentropy", optimizer="adam", metrics=["acc"])
+history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, validation_split=0.2)
 #  -------------------------- 5、训练模型 -------------------------------
 
 
 #  -------------------------- 6、保存模型，显示运行结果 -------------------------------
-from keras.utils import plot_model
-
 # 保存模型
-model.save('model_MLP_text.h5')  # 生成模型文件 'my_model.h5'
+model.save('model_CNN_text.h5')  # 生成模型文件 'my_model.h5'
 # 模型可视化
-plot_model(model, to_file='model_MLP_text.png', show_shapes=True)
+plot_model(model, to_file='model_CNN_text.png', show_shapes=True)
 
-from keras.models import load_model
 
 # 加载模型
-#model = load_model('model_MLP_text.h5')
+# model = load_model('model_CNN_text.h5')
 print(x_train[0])
 y_new = model.predict(x_train[0].reshape(1, 50))
 print(list(y_new[0]).index(max(y_new[0])))
 print(y_train[0])
 
-import matplotlib.pyplot as plt
 
 # 绘制训练 & 验证的准确率值
 plt.plot(history.history['acc'])
@@ -167,3 +160,5 @@ plt.xlabel('Epoch')
 plt.legend(['Train', 'Valid'], loc='upper left')
 plt.savefig('Valid_loss.png')
 plt.show()
+
+#  -------------------------- 6、保存模型，显示运行结果 -------------------------------
