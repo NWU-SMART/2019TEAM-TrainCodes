@@ -96,7 +96,7 @@ class Net(nn.Module):
         self.conv2=nn.Sequential(
             nn.Conv2d(32,32,3),
             nn.Relu(),
-            nn.MaxPool2d(2,2),
+            nn.MaxPooling2d(2,2),
             nn.Dropout(0.25)
         )
 
@@ -108,7 +108,7 @@ class Net(nn.Module):
         self.conv4 = nn.Sequential(
             nn.Conv2d(64, 64, 3),
             nn.Relu(),
-            nn.MaxPool2d(2, 2),#24*24
+            nn.MaxPooling2d(2, 2),#24*24
             nn.Dropout(0.25)
         )
         self.fc1=nn.Sequential(
