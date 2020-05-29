@@ -121,7 +121,7 @@ class Model(torch.nn.Module):
          result = self.dense3(x)
          return result
 
-     
+
 #  ------------------------- 测试   ---------------------------#
 model = Model()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
