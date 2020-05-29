@@ -112,7 +112,7 @@ x = Dropout(0.25)(x)
 outputs = Dense2(10, activation='softmax')(x)
 model = Model(inputs=inputs, outputs=outputs)
 
-# -------------------------- 3.model类继承--------------------------#
+# -------------------------- 5.3、model类继承--------------------------#
 class Model(keras.Model):
     def __init__(self, use_dp=True):
         super(HousePredict, self).__init__(name='mlp')
