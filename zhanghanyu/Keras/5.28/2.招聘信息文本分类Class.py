@@ -38,7 +38,7 @@ from keras.layers import BatchNormalization
 
 #-------------------------2、导入招聘信息数据----------------------------------
 #读取数据路径  中文编码
-job_detail_pd = pd.read_csv('D:\\研究生\\代码\\Keras代码\\1.Multi-Layer perceptron(MLP 多层感知器)\\job_detail_dataset.csv"', encoding='UTF-8')
+job_detail_pd = pd.read_csv('D:\keras_data\job_detail_dataset.csv', encoding='UTF-8')
 print(job_detail_pd.head(5))  #显示前5个数据
 label = list(job_detail_pd['PositionType'].unique())  # 标签
 print(label)
@@ -87,41 +87,42 @@ x_train = Job_Description_Seq_Padding
 y_train = job_detail_pd['label'].tolist() #生成列表，但和list不同
 #  -------------------------- 4、建立字典，并使用 -------------------------------
 #------------------------------5、CLASS---------------------------
-
+batch_size = 256
+epochs = 5
 
 import keras
 from keras import Model,Input
 
-inputs=Input(shape=50)
+inputs=Input(shape=(50,))
 
 class MLPic(keras.Model):
     def __init__(self):
         super(MLPic, self).__init__()
-        self.embedding =Embedding(output_dim=32,input_dim=2000,input_length=50)
-        self.dropout = Dropout(0.2)
+        self.embedding =Embedding(output_dim=32,input_dim=2000)
+        self.dropout1 = Dropout(0.2)
         self.flatten = Flatten()
         self.dense1= Dense(units=256,activation='relu')
-        self.dropout=Dropout(0.25)
+        self.dropout2=Dropout(0.25)
         self.dense2=Dense(units=10,activation='softmax')
 
     def call(self, inputs):
         x = self.embedding(inputs)
-        x = self.dropout(x)
+        x = self.dropout1(x)
         x = self.flatten(x)
         x = self.dense1(x)
-        x = self.dropout(x)
+        x = self.dropout2(x)
         x = self.dense2(x)
         return x
 
 model = MLPic()
-model.compile(loss="sparse_categorical_crossentropy",  # keras的多类损失函数
+model.compile(loss='sparse_categorical_crossentropy',  # keras的多类损失函数
                                                        #都是计算多分类crossentropy的，只是对y的格式要求不同。
                                                        #1）如果是categorical_crossentropy，那y必须是one-hot处理过的
                                                        #2）如果是sparse_categorical_crossentropy，那y就是原始的整数形式，数字编码，比如[1, 0, 2, 0, 2]这种
               optimizer="adam",
               metrics=["accuracy"]
               )
-result = model.fit(x_train, y_train, batch_size=256,epochs=5, verbose=2,validation_split=0.2)
+result = model.fit(x_train, y_train, batch_size=256, epochs=5, verbose=2,validation_split=0.2)
 
 
 #------------------------------5、CLASS---------------------------

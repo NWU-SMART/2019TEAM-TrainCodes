@@ -38,7 +38,7 @@ from keras.layers import BatchNormalization
 
 #-------------------------2、导入招聘信息数据----------------------------------
 #读取数据路径  中文编码
-job_detail_pd = pd.read_csv('D:\\研究生\\代码\\Keras代码\\1.Multi-Layer perceptron(MLP 多层感知器)\\job_detail_dataset.csv"', encoding='UTF-8')
+job_detail_pd = pd.read_csv('D:\keras_data\job_detail_dataset.csv', encoding='UTF-8')
 print(job_detail_pd.head(5))  #显示前5个数据
 label = list(job_detail_pd['PositionType'].unique())  # 标签
 print(label)
