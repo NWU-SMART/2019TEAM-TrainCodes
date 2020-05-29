@@ -101,62 +101,62 @@ x_test /= 255
 
 
 # /-----------------  API模式 --------------------*/
-# from keras.layers import Input
-# from keras import Model
-# input = Input(shape=x_train.shape[1:])
-# x = Conv2D(32,(3,3),padding='same',activation='relu')(input)
-# x = Conv2D(32,(3,3),activation='relu')(x)
-# x = MaxPool2D((2,2))(x)
-# x = Dropout(0.25)(x)
-#
-# x = Conv2D(64,(3,3),padding='same',activation='relu')(x)
-# x = Conv2D(64,(3,3),activation='relu')(x)
-# x = MaxPool2D((2,2))(x)
-# x = Dropout(0.25)(x)
-#
-# x = Flatten()(x)
-# x = Dense(512,activation='relu')(x)
-# x = Dropout(0.5)(x)
-# result = Dense(10,activation='softmax')(x)
-# model = Model(inputs=input,outputs=result)
+from keras.layers import Input
+from keras import Model
+input = Input(shape=x_train.shape[1:])
+x = Conv2D(32,(3,3),padding='same',activation='relu')(input)
+x = Conv2D(32,(3,3),activation='relu')(x)
+x = MaxPool2D((2,2))(x)
+x = Dropout(0.25)(x)
+
+x = Conv2D(64,(3,3),padding='same',activation='relu')(x)
+x = Conv2D(64,(3,3),activation='relu')(x)
+x = MaxPool2D((2,2))(x)
+x = Dropout(0.25)(x)
+
+x = Flatten()(x)
+x = Dense(512,activation='relu')(x)
+x = Dropout(0.5)(x)
+result = Dense(10,activation='softmax')(x)
+model = Model(inputs=input,outputs=result)
 
 # /----------------- 类继承的方式 --------------------*/
-import keras
-class cnn(keras.Model):
-    def __init__(self):
-        super(cnn,self).__init__(name='cnn')
-        self.conv2d1 = Conv2D(32,(3,3),padding='same',input_shape=x_train.shape[1:],activation='relu')
-        self.conv2d2 = Conv2D(32,(3,3),activation='relu')
-        self.maxpool1 = MaxPool2D((2,2))
-
-        self.conv2d3 = Conv2D(64,(3,3),padding='same',activation='relu')
-        self.conv2d4 = Conv2D(64,(3,3),activation='relu')
-        self.maxpool2 = MaxPool2D((2,2))
-
-        self.flatten = Flatten()
-        self.dense1 = Dense(512,activation='relu')
-        self.dropout1 = Dropout(0.25)
-        self.dropout2 = Dropout(0.5)
-        self.dense2 = Dense(10,activation='softmax')
-    def call(self,x):
-        x = self.conv2d1(x)
-        x = self.conv2d2(x)
-        x = self.maxpool1(x)
-        x = self.dropout1(x)
-
-        x = self.conv2d3(x)
-        x = self.conv2d4(x)
-        x = self.maxpool2(x)
-        x = self.dropout1(x)
-
-        x = self.flatten(x)
-        x = self.dense1(x)
-        x = self.dropout2(x)
-        result = self.dense2(x)
-        return result
+# import keras(需要指定一个input否则会报错误说提前编译)
+# class cnn(keras.Model):
+#     def __init__(self):
+#         super(cnn,self).__init__(name='cnn')
+#         self.conv2d1 = Conv2D(32,(3,3),padding='same',input_shape=x_train.shape[1:],activation='relu')
+#         self.conv2d2 = Conv2D(32,(3,3),activation='relu')
+#         self.maxpool1 = MaxPool2D((2,2))
+#
+#         self.conv2d3 = Conv2D(64,(3,3),padding='same',activation='relu')
+#         self.conv2d4 = Conv2D(64,(3,3),activation='relu')
+#         self.maxpool2 = MaxPool2D((2,2))
+#
+#         self.flatten = Flatten()
+#         self.dense1 = Dense(512,activation='relu')
+#         self.dropout1 = Dropout(0.25)
+#         self.dropout2 = Dropout(0.5)
+#         self.dense2 = Dense(10,activation='softmax')
+#     def call(self,x):
+#         x = self.conv2d1(x)
+#         x = self.conv2d2(x)
+#         x = self.maxpool1(x)
+#         x = self.dropout1(x)
+#
+#         x = self.conv2d3(x)
+#         x = self.conv2d4(x)
+#         x = self.maxpool2(x)
+#         x = self.dropout1(x)
+#
+#         x = self.flatten(x)
+#         x = self.dense1(x)
+#         x = self.dropout2(x)
+#         result = self.dense2(x)
+#         return result
 # 优化函数
 optimize = keras.optimizers.rmsprop(lr=1e-4,decay=1e-6)
-model = cnn()
+
 model.compile(loss='categorical_crossentropy',optimizer=optimize,metrics=['accuracy'])
 # /-----------------  模型建立 --------------------*/
 
@@ -193,6 +193,8 @@ else:
                               validation_split=0.0#用于验证图像的比例
                               )
     data.fit(x_train)
+    print(x_train.shape[0] // 32)  # 取整
+    print(x_train.shape[0] / 32)  # 保留小数
     history = model.fit_generator(data.flow(x_train, y_train,
                                      batch_size=32),
                         # 按batch_size大小从x,y生成增强数据
