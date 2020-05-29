@@ -108,3 +108,5 @@ for t in range(300):
 
 plt.plot(loss_list, 'r-')
 plt.show()
+
+
