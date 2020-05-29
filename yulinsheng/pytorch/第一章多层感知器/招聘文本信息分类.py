@@ -199,8 +199,6 @@ for i in range(epoch):
     optimizer.step()
 #     画出预测值和真实值之间的区别
     print(i, loss.item())
-    plt.plot(i, loss.item())
-    plt.scatter(i, loss.item())
-plt.show()
+
 
 
