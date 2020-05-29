@@ -1,3 +1,6 @@
+#----------------------------------2020.05.28 torch------------------
+#-------------------------2020.05.29Keras的 和model 继承类，以及加噪-------------
+
 # ----------------------   代码布局： ----------------------
 # 1、导入 torch, matplotlib, numpy,  和 panda的包
 # 2、读取手写体数据及与图像预处理
@@ -64,6 +67,13 @@ print(X_test.shape[0], 'test samples')
 # X_train 60000*784, X_test10000*784
 X_train = X_train.reshape((len(X_train), np.prod(X_train.shape[1:])))
 X_test = X_test.reshape((len(X_test), np.prod(X_test.shape[1:])))
+noise_factor = 0.5
+X_train_noisy = X_train + noise_factor * np.random.normal(loc=0.0, scale=1.0, size=X_train.shape)
+X_test_noisy = X_test + noise_factor * np.random.normal(loc=0.0, scale=1.0, size=X_test.shape)
+
+X_train_noisy = np.clip(X_train_noisy, 0., 1.)
+X_test_noisy = np.clip(X_test_noisy, 0., 1.)
+
 
 
 #  --------------------- 2、读取手写体数据及与图像预处理 ---------------------
@@ -86,6 +96,7 @@ class AutoEncoder(nn.module):
             encoder = self.encoder(x)
             decoder = self.decoder(encoder)
             return encoder, decoder
+
 
 
 # CNN编码器
@@ -134,12 +145,47 @@ class AutoEncoder(nn.module):
         x=self.conv6(x)
         decoder=self.conv7(x)
  loss=BCEWithLogitsLoss   
-
-
-
-
-
-"""
+ 类继承
+ class SimpleMLP(keras.Model):
+    def __init__(self, use_bn=False, use_dp=False):
+       super(SimpleMLP, self).__init__(name='mlp')
+       self.use_bn = use_bn
+       self.use_dp = use_dp
+       self.conv2d1=keras.layers.conv2D(16,3,padding='same',activation='relu')
+       self.maxpooling2d1=keras.layers.MaxPooling2D(2)
+       self.cinv2d2=keras.layers.conv2D(8,3,padding='same',activation='relu')
+       self.maxpooling2d2=keras.layers.MaxPooling2D(2)
+       self.cinv2d3=keras.layers.conv2D(8,3,padding='AVLID',activation='relu')
+       self.maxpooling2d3=keras.layers.MaxPooling2D(2)
+              
+       
+       self.conv2d4=keras.layers.conv2D(8,3,PADDING='same',activation='relu')
+       self.up1 = keras.layers.UpSampling2D(2)
+       self.conv2d5=keras.layers.conv2D(8,3,padding='same'activation='relu')
+       self.up1=keras.layers.UpSampling2D(2)
+       self.conv2d5=keras.layers.conv2D(16,3,padding='VALID'activation='sigmoid')
+       self.up3=keras.layers.UpSampling2D(2)
+    def call(self,input):
+        x=self.conv2d1(input)
+        x=self.maxpooling2d1(x)
+        x= self.conv2d2(x)
+        x=self.maxpooling2d2(x)
+        x=self.conv2d3(x)
+        encoder=self.maxpooling2d3(x)
+        
+        x=self.conv2d4(encoder)
+        x=self.up(x)
+        x=self.conv2d5(x)
+        x=self.up1(x)
+        x=self.conv2d6(encoder)
+        decoder=self.up3(x)
+        return encoder,decoder
+        
+        
+     
+model=SimpleMLP()
+ 
+ """
 epoch = 5
 batch_size = 128
 autodecoder = AutoEncoder()
@@ -148,13 +194,13 @@ loss = nn.binary_crossentropy()
 for i in range(epoch):
     for j in range(len(X_train)):
 
-        encoder, decoder = autodecoder(X_train[j])
+        encoder, decoder = autodecoder(X_train[j])#X_train_nosiy[j]
         loss = loss(decoder, Y_train)
         optimizer.zero_grad()  # clear gradients for this training step
         loss.backward()  # backpropagation, compute gradients
         optimizer.step()
         num_correct = 0
-        encoder2, decoder2 = autodecoder(X_test[j])
+        encoder2, decoder2 = autodecoder(X_test[j])#X_test_nosiy[j]
         predict = autodecoder(decoder, X_test[j])
         num_correct += (predict == Y_test[j]).sum()
         accuracy = num_correct() / len(X_test)
