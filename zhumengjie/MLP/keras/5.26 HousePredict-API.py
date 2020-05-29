@@ -70,6 +70,7 @@ from keras.layers import Input, Dense
 from keras.models import Model
 
 inputs = Input(shape=(x_valid_pd.shape[1],))
+print(inputs)
 x = Dense(10, activation='relu')(inputs)
 x = Dropout(0.2)(x)
 x = Dense(15, activation='relu')(x)

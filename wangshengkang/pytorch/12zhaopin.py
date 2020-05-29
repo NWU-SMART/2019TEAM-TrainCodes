@@ -1,10 +1,20 @@
+# ----------------------------作者信息--------------------------------
 # -*- coding: utf-8 -*-
 # @Time: 2020/5/26 11:33
 # @Author: wangshengkang
 # @Version: 1.0
-# @Filename: zhaopinxinxitorch.py
+# @Filename: 12zhaopin.py
 # @Software: PyCharm
-
+# ----------------------------作者信息-----------------------------------
+# --------------------------------代码布局---------------------------------------
+# 1导入Keras，pandas，jieba，matplotlib，numpy的包
+# 2招聘数据导入
+# 3分词和提取关键词
+# 4建立字典，并使用
+# 5建立模型
+# 6保存模型，画图
+# -------------------------------代码布局-----------------------------------
+# --------------------------------1导入相关包-----------------------------------
 import torch
 import torch.nn as nn
 import pandas as pd
@@ -15,7 +25,10 @@ from keras.preprocessing.text import Tokenizer
 from keras.preprocessing import sequence
 import matplotlib.pyplot as plt
 
-job_detail_pd = pd.read_csv('../../job_detail_dataset.csv', encoding='UTF-8')  # 读取文件
+# --------------------------------1导入相关包-----------------------------------
+# ----------------------------------2招聘数据导入--------------------------------------
+
+job_detail_pd = pd.read_csv('../job_detail_dataset.csv', encoding='UTF-8')  # 读取文件
 print(job_detail_pd.head(5))  # 打印前五行
 label = list(job_detail_pd['PositionType'].unique())  # 将不重复的工作类型列出
 print('label')
@@ -68,22 +81,33 @@ Job_Description_Seq_Padding = sequence.pad_sequences(Job_Description_Seq, maxlen
 x_train = Job_Description_Seq_Padding  # 数字列表作为训练集
 y_train = job_detail_pd['label'].tolist()  # 标签
 
+x_train = torch.LongTensor(x_train)  # 转化为tensor形式
+y_train = torch.LongTensor(y_train)
+
+
+# TypeError: embedding(): argument 'indices' (position 2) must be Tensor, not numpy.ndarray
 
 # ----------------------------------4建立字典----------------------------------
 # ----------------------------------5建立模型----------------------------------
+
 class zhaopin(nn.Module):
     def __init__(self):
-        super(self, zhaopin).__init__()
-        model = nn.Sequential(
-            nn.Embedding(num_embeddings=2000, embedding_dim=32, max_norm=50),
+        super(zhaopin, self).__init__()
+        self.model = nn.Sequential(
+            nn.Embedding(num_embeddings=2000, embedding_dim=32),
             nn.Dropout(0.2),
-            nn.Flatten(),
-            nn.Linear(1, 256),
+            nn.Flatten(),  # pycharm会显示黄块找不到，但是可以运行，我的torch版本为1.15.0
+            nn.Linear(1600, 256),
             nn.ReLU(),
             nn.Dropout(0.25),
             nn.Linear(256, 10),
             nn.Softmax()
         )
+
+    def forward(self, x):
+        out = self.model(x)
+
+        return out
 
 
 model = zhaopin()
@@ -101,8 +125,9 @@ for epoch in range(epochs):
     optimizer.zero_grad()
     train_loss.backward()
     optimizer.step()
-    print('epoch %3d, loss %3d' % (epoch, train_loss))
+    print('epoch %3d, loss %10.7f' % (epoch, train_loss))
 
+print('loss_total\n', loss_total)
 plt.plot(iteration, loss_total, label="loss")  # iteration和loss对应画出
 plt.title('torch loss')  # 题目
 plt.xlabel('Epoch')  # 横坐标

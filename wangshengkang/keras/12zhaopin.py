@@ -27,7 +27,7 @@ from keras.layers.embeddings import Embedding
 # ---------------------------------1导入相关包-------------------------------------
 # ----------------------------------2招聘数据导入--------------------------------------
 
-job_detail_pd = pd.read_csv('.../.../job_detail_dataset.csv', encoding='UTF-8')  # 读取文件
+job_detail_pd = pd.read_csv('../../job_detail_dataset.csv', encoding='UTF-8')  # 读取文件
 print(job_detail_pd.head(5))  # 打印前五行
 label = list(job_detail_pd['PositionType'].unique())  # 将不重复的工作类型列出
 print('label')
