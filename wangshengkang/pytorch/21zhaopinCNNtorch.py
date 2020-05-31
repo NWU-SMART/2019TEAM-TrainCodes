@@ -93,16 +93,15 @@ class zhaopin(nn.Module):
         super(zhaopin, self).__init__()
         self.embedding = nn.Embedding(num_embeddings=2000, embedding_dim=32)  # 50*32
         self.model = nn.Sequential(
-            nn.Conv1d(32, 256, 3),  # 50*256
+            nn.Conv1d(32, 256, 3, padding=2),  # 52*256
             nn.ReLU(),
             nn.MaxPool1d(3, 3),  # 17*256
-            nn.Conv1d(256, 32, 3),  # 17*32
+            nn.Conv1d(256, 32, 3, padding=1),  # 17*32
             nn.ReLU(),
             nn.Flatten(),  # 544
             nn.Dropout(0.3),
-            # RuntimeError: running_mean should contain 448 elements not 544
-            nn.BatchNorm1d(448),  # 544 报错信息提示应该为448，目前原因未知
-            nn.Linear(448, 256),  # 256
+            nn.BatchNorm1d(544),  # 544
+            nn.Linear(544, 256),  # 256
             nn.Dropout(0.2),
             nn.Linear(256, 10),  # 10
             nn.Softmax()

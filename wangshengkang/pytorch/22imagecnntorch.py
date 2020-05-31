@@ -20,10 +20,6 @@ import torch.nn as nn
 
 # ------------------------------------1引入相关包----------------------------------
 # -----------------------------------2导入数据，数据处理------------------------------------------
-from sklearn.preprocessing import LabelBinarizer
-from torch.autograd import Variable
-
-
 def load_data():
     paths = [
         'train-labels-idx1-ubyte.gz',
@@ -54,14 +50,14 @@ x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
 x_train /= 255  # 归一化
 x_test /= 255  # 归一化
-x_train = Variable(torch.from_numpy(x_train))
-x_test = Variable(torch.from_numpy(x_test))
-y_train = Variable(torch.from_numpy(y_train))
+
+x_train = torch.from_numpy(x_train)
+x_test = torch.from_numpy(x_test)
+y_train = torch.from_numpy(y_train)
 # RuntimeError: expected scalar type Long but found Byte
 y_train = y_train.long()
-y_test = Variable(torch.from_numpy(y_test))
+y_test = torch.from_numpy(y_test)
 y_test = y_test.long()
-
 
 epochs = 5
 data_augmentation = True
