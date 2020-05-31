@@ -1,10 +1,8 @@
 # ------------------------------作者信息-------------------------------------
 # -*- coding: utf-8 -*-
-# @Time: 2020/5/25 21:27
+# @Time: 2020/5/26 21:30
 # @Author: wangshengkang
-# @Version: 1.0
-# @Filename: 12zhaopin.py
-# @Software: PyCharm
+
 # --------------------------------作者信息--------------------------------------
 # --------------------------------代码布局---------------------------------------
 # 1导入Keras，pandas，jieba，matplotlib，numpy的包
@@ -21,13 +19,13 @@ import jieba.analyse as analyse
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing import sequence
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten, MaxPool1D, Conv1D
+from keras.layers import Dense, Dropout, Activation, Flatten, MaxPool1D, Conv1D, BatchNormalization
 from keras.layers.embeddings import Embedding
 
 # ---------------------------------1导入相关包-------------------------------------
 # ----------------------------------2招聘数据导入--------------------------------------
 
-job_detail_pd = pd.read_csv('../../job_detail_dataset.csv', encoding='UTF-8')  # 读取文件
+job_detail_pd = pd.read_csv('../job_detail_dataset.csv', encoding='UTF-8')  # 读取文件
 print(job_detail_pd.head(5))  # 打印前五行
 label = list(job_detail_pd['PositionType'].unique())  # 将不重复的工作类型列出
 print('label')
@@ -92,13 +90,15 @@ model.add(Embedding(input_dim=2000,  # 字典大小
                     input_length=50  # 每个数字列表的长度
                     )  # batch*50*32
           )  #
-model.add(Dropout(0.2))
-model.add(Flatten())  # 平展 batch*1600
-model.add(Dense(units=256,
-                activation='relu'))  # b*256
-model.add(Dropout(0.25))
-model.add(Dense(units=10,
-                activation='softmax'))  # b*10  10个类别的概率
+model.add(Conv1D(256,3,padding='same',activation='relu'))# 50*256 输出为256维，卷积核尺寸为3
+model.add(MaxPool1D(3,3,padding='same'))# 17*256 池化窗尺寸为3，步长为3
+model.add(Conv1D(32,3,padding='same',activation='relu')) # 17*32
+model.add(Flatten())#544
+model.add(Dropout(0.3))#544
+model.add(BatchNormalization()) # 归一化#544
+model.add(Dense(256,activation='relu'))#256
+model.add(Dropout(0.2))#256
+model.add(Dense(10,activation='softmax'))#10
 
 print(model.summary())
 
