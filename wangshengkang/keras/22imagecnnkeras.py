@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time: 2020/5/28 13:35
 # @Author: wangshengkang
-# @Version: 1.0
-# @Filename: 22imagecnn.py
-# @Software: PyCharm
+
 # -------------------------------------作者信息--------------------------------------------
 # -------------------------------------代码布局：---------------------------------------
 # 1引入gzip,numpy,keras,os等包
@@ -13,8 +11,8 @@
 # 4训练模型
 # 5保存模型
 # 6画图
+# -------------------------------------代码布局：---------------------------------------
 # ------------------------------------1引入相关包--------------------------------------
-from tensorflow.python.keras.utils import get_file
 import gzip
 import numpy as np
 import keras
@@ -23,7 +21,6 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Conv2D, MaxPool2D
 import os
-import functools
 
 
 # ------------------------------------1引入相关包----------------------------------
@@ -36,6 +33,7 @@ def load_data():
         't10k-images-idx3-ubyte.gz'
     ]
     with gzip.open(paths[0], 'rb') as lbpath:
+        # frombuffer将data以流的形式读入转化成ndarray对象
         y_train = np.frombuffer(lbpath.read(), np.uint8, offset=8)
     with gzip.open(paths[1], 'rb') as imgpath:
         x_train = np.frombuffer(imgpath.read(), np.uint8, offset=16).reshape(len(y_train), 28, 28, 1)
@@ -57,36 +55,38 @@ num_predictions = 20
 save_dir = os.path.join(os.getcwd(), 'saved_models_cnn')
 model_name = 'keras_fashion_trained_model.h5'
 
-y_train = keras.utils.to_categorical(y_train, num_classes)
+y_train = keras.utils.to_categorical(y_train, num_classes)  # 将整型的类别标签转为onehot编码
 y_test = keras.utils.to_categorical(y_test, num_classes)
 
-x_train = x_train.astype('float32')
+x_train = x_train.astype('float32')  # 转换数组类型
 x_test = x_test.astype('float32')
 
-x_train /= 255
+x_train /= 255  # 图像的RGB数值归一化到(0,1)
 x_test /= 255
+print(x_train.shape[1:])  # (28, 28, 1)
 # -----------------------------------2导入数据，数据处理------------------------------------------
 # -----------------------------------3创建模型----------------------------------------------
 model = Sequential()
-model.add(Conv2D(32, (3, 3), padding='same', input_shape=x_train.shape[1:]))
+# 32个卷积核，卷积核尺寸为3*3，输入尺寸为(28, 28, 1)
+model.add(Conv2D(32, (3, 3), padding='same', input_shape=x_train.shape[1:]))#32*28*28
 model.add(Activation('relu'))
-model.add(Conv2D(32, (3, 3)))
+model.add(Conv2D(32, (3, 3)))#32*26*26
 model.add(Activation('relu'))
-model.add(MaxPool2D(pool_size=(2, 2)))
+model.add(MaxPool2D(pool_size=(2, 2)))#32*13*13
 model.add(Dropout(0.25))
 
-model.add(Conv2D(64, (3, 3), padding='same'))
+model.add(Conv2D(64, (3, 3), padding='same'))#64*13*13
 model.add(Activation('relu'))
-model.add(Conv2D(64, (3, 3)))
+model.add(Conv2D(64, (3, 3)))#64*13*13
 model.add(Activation('relu'))
-model.add(MaxPool2D(pool_size=(2, 2)))
+model.add(MaxPool2D(pool_size=(2, 2)))#64*6*6
 model.add(Dropout(0.25))
 
-model.add(Flatten())
-model.add(Dense(512))
+model.add(Flatten())#2304
+model.add(Dense(512))#512
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
-model.add(Dense(num_classes))
+model.add(Dense(num_classes))#10
 model.add(Activation('softmax'))
 
 opt = keras.optimizers.rmsprop(lr=0.0001, decay=0.000006)
@@ -140,13 +140,14 @@ model.summary()
 if not os.path.isdir(save_dir):
     os.makedirs(save_dir)
 model_path = os.path.join(save_dir, model_name)
-model.save(model_path)
+model.save(model_path)  # 保存模型
 print('Saved trained model at %s' % model_path)
 
 # -----------------------------------5保存模型--------------------------------------------------
 # -----------------------------------6画图--------------------------------------------------
 import matplotlib.pyplot as plt
 
+# 画准确率的曲线
 plt.plot(history.history['acc'])
 plt.plot(history.history['val_acc'])
 plt.title('Model accuracy')
@@ -155,7 +156,7 @@ plt.xlabel('Epoch')
 plt.legend(['Train', 'Valid'], loc='upper left')
 plt.savefig('tradition_cnn_valid_acc.png')
 plt.show()
-
+# 画损失的曲线
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
 plt.title('Modle loss')

@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time: 2020/5/26 11:33
 # @Author: wangshengkang
-# @Version: 1.0
-# @Filename: 12zhaopin.py
-# @Software: PyCharm
+
 # ----------------------------作者信息-----------------------------------
 # --------------------------------代码布局---------------------------------------
 # 1导入Keras，pandas，jieba，matplotlib，numpy的包
