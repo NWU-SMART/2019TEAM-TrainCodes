@@ -2,9 +2,9 @@
  # -*- coding: utf-8 -*-
  # @Time: 2020/6/1
  # @Author: MiJizong
- # @Version: 1.0
+ # @Version: 1.0 
  # @FileName: 1.0.py
- # @Software: PyCharm 
+ # @Software: PyCharm
  # ----------------------开发者信息-----------------------------------------
 
 # ----------------------   代码布局： ----------------------
