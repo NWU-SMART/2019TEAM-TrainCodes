@@ -2,11 +2,8 @@
  # -*- coding: utf-8 -*-
  # @Time: 2020/6/1
  # @Author: MiJizong
-<<<<<<< HEAD
  # @Version: 1.0
-=======
- # @Version: 1.0 
->>>>>>> origin/master
+ # @Version: 1.0
  # @FileName: 1.0.py
  # @Software: PyCharm
  # ----------------------开发者信息-----------------------------------------
