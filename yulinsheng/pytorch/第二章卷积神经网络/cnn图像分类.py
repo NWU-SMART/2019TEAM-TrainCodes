@@ -41,18 +41,19 @@ with gzip.open(path_testImage, 'rb') as Imgpath_test:
 import torch
 # 将数据归一化处理
 # 将图片信息转换数据类型
-# x_train = x_train.astype('float32')
-# x_test = x_test.astype('float32')
+import numpy as np
+x_train = x_train.astype(np.float32)
+x_test = x_test.astype(np.float32)
 # 归一化
-# x_train /= 255
-# x_test /= 255
+x_train /= 255
+x_test /= 255
 y_train = torch.LongTensor(y_train)
 y_test = torch.LongTensor(y_test)
 x_train = torch.LongTensor(x_train)
 x_test = torch.LongTensor(x_test)
-# 将类别信息转换为one-hot编码形式
-y_train = torch.nn.functional.one_hot(y_train,10)
-y_test = torch.nn.functional.one_hot(y_test,10)
+# 将类别信息转换为one-hot编码形式(交叉熵损失不能用one-hot编码)
+# y_train = torch.nn.functional.one_hot(y_train,10)
+# y_test = torch.nn.functional.one_hot(y_test,10)
 
 
 
@@ -97,7 +98,8 @@ class cnn(torch.nn.Module):
         )
     #     输入x(28*28*1)
     def forward(self, x):
-
+        x = x.float()
+        # x = x.permute(0, 3, 1, 2)
         x = self.conv1(x)#(28*28*32)维度变化
         x = self.conv2(x)#(26*26*32)
         x = self.maxpool(x)#(13*13*32)
@@ -136,8 +138,8 @@ for i in range(epoch):
     # 权值更新
     optimizer.step()
 #     画出预测值和真实值之间的区别
-    print(i, loss.item())
-
-    plt.plot(i, loss.item())
-    plt.scatter(i, loss.item())
-plt.show()
+#     print(i, loss.item())
+#
+#     plt.plot(i, loss.item())
+#     plt.scatter(i, loss.item())
+# plt.show()
