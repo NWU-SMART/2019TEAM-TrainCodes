@@ -76,7 +76,7 @@ y_valid = min_max_scaler.transform(y_valid_pd)
 
 
 #  -------------------------- 4、Sequential模型训练   -------------------------------
-model = Sequential()                                    # 初始化，很重要！
+model = Sequential()                                    # 初始化
 model.add(Dense(units = 10,                             #定义该层有10个神经元
                 activation='relu',                      #该层使用relu激活函数
                 input_shape=(x_train_pd.shape[1],)))    #表示输入的尺寸
