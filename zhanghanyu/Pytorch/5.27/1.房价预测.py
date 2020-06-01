@@ -2,8 +2,9 @@
 # 开发者：张涵毓
 # 开发日期：2020年5月27日
 # 内容：房价预测pytorch
-# 修改人：
-# 修改内容：
+# 修改时间：2020年6月1日
+# 修改人：张涵毓
+# 修改内容：用pytorch的4种方法构建房价预测的网络模型
 # ----------------开发者信息----------------------------
 
 # ----------------------代码布局-------------------------------------
@@ -65,6 +66,7 @@ valid_y = min_max_scaler.transform(valid_y_pd)
 #  ------------ 3、数据归一化 ------------#
 
 #  -------------4、模型建立训练保存--------------#
+#  --------------Method-1:早期最常用的方法------------------#
 class MLPhp(nn.Module):
     def __init__(self,input_size):
         super(MLPhp,self).__init__()
@@ -85,6 +87,61 @@ class MLPhp(nn.Module):
             x = self.relu2(x)
             y_pred = self.linear3(x)
             return y_pred
+#  --------------Method-1:早期最常用的方法------------------#
+#  --------------Method-2:利用torch.nn.Sequential()容器进行快速搭建------------------#
+'''
+class MLPhp(nn.module):
+    def __init__(self,input_size):
+        super(MLPhp, self).__init__()
+        self.dense = nn.Sequential(nn.linear(input_size, 10),
+                                   nn.ReLU(),
+                                   nn.linear(10, 15),
+                                   nn.ReLU(),
+                                   nn.linear(15, 1)
+                                         )
+
+    def forward(self, x):
+        y_pred = self.dense(x)
+        return y_pred
+'''
+#  ---Method-2:利用torch.nn.Sequential()容器进行快速搭建，但缺点是每层命名为默认阿拉伯数字，不易区分------------------#
+#  -------------Method-3：对方法2的改进，通过add.module()添加每一层------------------#
+'''
+class MLPhp(nn.model):
+    def __init__(self):
+        super(MLPhp,self).__init()
+        self.dense = nn.Sequential()
+        self.dense.add.module('dense1', nn.linear(input_size,10)),
+        self.dense.add.module('relu1', nn.ReLU()),
+        self.dense.add.module('dense2', nn.linear(10,15)),
+        self.dense.add.module('relu2', nn.ReLU()),
+        self.dense.add.module('dense3', nn.linear(15, 1))
+    def forward(self,x):
+        y_pred = self.dense(x)
+        return y_pred
+'''
+#  ---------Method-3：对方法2的改进，通过add.module()添加每一层，每一层可以有单独的名字------------------#
+#  -------------------------Method-4:方法3的另一种写法---------------------------#
+'''
+from collections import OrderedDict
+class MLPhp(nn.module):
+    def __init__(self,input_size):
+        super(MLPhp,self).__init__()
+        self.dense=nn.Sequential(
+            OrderedDict([
+                    ("dense1",nn.linear(input_size,10)),
+                    ("relu1",nn.ReLU()),
+                    ("dense2",nn.linear(10,15)),
+                    ("relu2",nn.ReLU()),
+                    ("dense3",nn.linear(15,1))
+
+                ])
+        )
+    def forward(self,x):
+        y_pred=self.dense(x)
+        return y_pred
+'''
+#  -------------------------Method-4:方法3的另一种写法---------------------------#
 
 input_size = train_x_pd.shape[1]  # 输入大小也就是列的大小
     # 变为variable数据类型
