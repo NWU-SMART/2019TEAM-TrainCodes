@@ -126,7 +126,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 loss_fn = torch.nn.CrossEntropyLoss()
 Epoch = 5
 
-## 开始训练 ##
+# 开始训练 #
 for t in range(Epoch):
 
     x = model(x_train)  # 向前传播

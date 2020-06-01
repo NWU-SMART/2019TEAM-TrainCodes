@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time: 2020/5/23 20:04
 # @Author: wangshengkang
-# @Version: 1.0
-# @Filename: 11.py
-# @Software: PyCharm
+
 # --------------------------作者信息--------------------------------------
 # ----------------------代码布局-------------------------------------
 # 1.引入keras，matplotlib，numpy，sklearn，pandas包

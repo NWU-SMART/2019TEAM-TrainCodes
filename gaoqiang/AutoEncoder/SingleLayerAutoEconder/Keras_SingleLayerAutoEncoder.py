@@ -40,7 +40,7 @@ print(x_test.shape)   # (10000, 28, 28)
 # 归一化
 x_train = x_train.astype("float32")/255.
 x_test  = x_test.astype("float32")/255.
-# np.load是将28*28的矩阵转换为1*784，方便BP神经网络输入层784个神经元读取
+# np.prod是将28*28的矩阵转换为1*784，方便BP神经网络输入层784个神经元读取
 x_train = x_train.reshape((len(x_train),np.prod(x_train.shape[1:])))  # 60000*784
 x_test  = x_test.reshape((len(x_test),np.prod(x_test.shape[1:])))     # 10000*784
 

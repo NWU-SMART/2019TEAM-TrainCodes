@@ -107,26 +107,20 @@ model = Model()
 print(model)
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 loss_fn = torch.nn.CrossEntropyLoss()
-Epoch = 5
+Epoch = 1
 
 ## 开始训练 ##
 for t in range(Epoch):
 
-    x = model(x_train)  # 向前传播
+    x = model(x_train)          # 向前传播
     loss = loss_fn(x, y_train)  # 计算损失
-    # 显示损失
-    if (t + 1) % 1 == 0:
-        print(loss.item())
-    # 在进行梯度更新之前，先使用optimier对象提供的清除已经积累的梯度
-    optimizer.zero_grad()
-    # 计算梯度
-    loss.backward()
-    # 更新梯度
-    optimizer.step()
 
-# # 保存模型
-# print("模型保存")
-# torch.save(model, '\model.pkl')
-# # 加载模型
-# print("加载模型")
-# model = torch.load('\model.pkl')
+    if (t + 1) % 1 == 0:        # 每训练1个epoch，打印一次损失函数的值
+        print(loss.data())
+        torch.save(model.state_dict(), "./model.pkl")  # 每一个epoch保存一次模型
+        print("save model")
+
+    optimizer.zero_grad()      # 在进行梯度更新之前，先使用optimier对象提供的清除已经积累的梯度
+    loss.backward()            # 计算梯度
+    optimizer.step()           # 更新梯度
+
