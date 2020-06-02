@@ -123,3 +123,45 @@ class Model(nn.Module):
     def forward(self, x):
         x = self.layer(x)
         return x
+
+
+#  ------------------------- 5.3 OrderedDict子类   ---------------------------#
+class model(torch.nn.Module):
+    def __init__(self):
+        super(model, self).__init__()
+        self.layer = nn.Sequential(OrderedDict([('embedding', torch.nn.Embedding(output_dim=32, input_dim=2000, input_length=50))
+                                                ('conv1', torch.nn.Conv1d(256, 3))
+                                                ('relu1', torch.nn.ReLU())
+                                                ('maxpool', torch.nn.MaxPool(3, 3))
+                                                ('conv2', torch.nn.Conv1d(32, 3))
+                                                ('relu2', torch.nn.ReLU())
+                                                ('flatten', torch.nn.Flatten())
+                                                ('dropout1', torch.nn.Dropout(0.3))
+                                                ('dense1', torch.nn.Linear(32, 256))
+                                                ('relu3', torch.nn.ReLU())
+                                                ('dropout2', torch.nn.Dropout(0.2))
+                                                ('dense2', torch.nn.Linear(256, 10, activation='softmax'))])
+    def forward(self, x):
+        x = self.dense(x)
+        return x
+
+#  ------------------------------ 5.4 类继承   -----------------------------#
+class model(torch.nn.Module):
+    def __init__(self):
+        super(model, self).__init__()
+        self.embedding = torch.nn.embedding(output_dim=32,input_dim=2000,input_length=50)
+        self.conv1 = torch.nn.Sequential(torch.nn.Conv1d(256, 3, padding='same', activation='relu'),
+                                         torch.nn.MaxPool1d(3, 3, padding='same'))
+        self.conv2 = torch.nn.Sequential(torch.nn.Conv1d(32, 3, padding='same', activation='relu'),
+                                         torch.nn.Flatten(),
+                                         torch.nn.Dropout(0.3))
+        self.dense = torch.nn.Sequential(torch.nn.Linear(32, 256, activation='relu'),
+                                         torch.nn.Dropout(0.2),
+                                         torch.nn.Linear(256, 10, activation='softmax'))
+
+    def forward(self, input):
+        x = self.embedding(input)
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = self.dense(x)
+        return x
