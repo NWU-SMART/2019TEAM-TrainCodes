@@ -144,7 +144,6 @@ class model(torch.nn.Module):
     def forward(self, x):
         x = self.dense(x)
         return x
-
 #  ------------------------------ 5.4 类继承   -----------------------------#
 class model(torch.nn.Module):
     def __init__(self):
