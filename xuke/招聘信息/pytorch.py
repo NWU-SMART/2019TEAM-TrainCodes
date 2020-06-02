@@ -150,7 +150,7 @@ class model(torch.nn.Module):
         super(model, self).__init__()
         self.embedding = torch.nn.embedding(output_dim=32,input_dim=2000,input_length=50)
         self.conv1 = torch.nn.Sequential(torch.nn.Conv1d(256, 3, padding='same', activation='relu'),
-                                         torch.nn.MaxPool1d(3, 3, padding='same'))
+                                         torch.nn.MaxPool(3, 3, padding='same'))
         self.conv2 = torch.nn.Sequential(torch.nn.Conv1d(32, 3, padding='same', activation='relu'),
                                          torch.nn.Flatten(),
                                          torch.nn.Dropout(0.3))
