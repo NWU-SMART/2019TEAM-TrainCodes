@@ -19,11 +19,9 @@
 import pandas as pd
 import torch
 import torch.nn as nn
-import numpy as np
 import matplotlib.pyplot as plt
 import jieba
 import jieba.analyse as analyse
-import torch.nn.functional as F
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing import sequence
 #  -------------------------- 导入需要包 ----------------------------------
