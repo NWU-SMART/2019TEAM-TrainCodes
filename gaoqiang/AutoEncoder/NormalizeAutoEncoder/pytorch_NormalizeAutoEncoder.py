@@ -1,6 +1,6 @@
 # -------------------------------------------------开发者信息----------------------------------------------------------#
 # 开发者：高强
-# 开发日期：2020年5月28日
+# 开发日期：2020.6.2
 # 开发框架：pytorch
 # 温馨提示：
 #----------------------------------------------------------------------------------------------------------------------#
@@ -40,44 +40,15 @@ x_train = torch.Tensor(x_train)  # 转换为tenser
 x_test = torch.Tensor(x_test)    # 转换为tenser
 #----------------------------------------------------------------------------------------------------------------------#
 #---------------------------------------------构建自编码器模型---------------------------------------------------------#
-##方法一：class + 多层Sequential ##
-import torch.nn as nn
-# class myModel(nn.Module):
-#     def __init__(self):
-#         super(myModel, self).__init__()
-#         self.hidden = torch.nn.Sequential(
-#             torch.nn.Linear(784, 64),
-#             torch.nn.ReLU()
-#         )
-#         self.output = torch.nn.Sequential(
-#             torch.nn.Linear(64, 784),
-#             torch.nn.Sigmoid()
-#         )
-#
-#     def forward(self, inputs):
-#         hidden = self.hidden(inputs)
-#         output = self.output(hidden)
-#         return output
 
-# model = myModel()
-##方法二：Sequential ##
-# myModel = torch.nn.Sequential()
-# myModel.add_module('hidden',torch.nn.Linear(784,64))
-# myModel.add_module('relu',torch.nn.ReLU())
-# myModel.add_module('output',torch.nn.Linear(64,784))
-# myModel.add_module('sigmoid',torch.nn.Sigmoid())
-#
-# model = myModel
-
-##方法三：class + 一层Sequential ##
 import torch.nn as nn
 class myModel(nn.Module):
     def __init__(self):
         super(myModel, self).__init__()
         self.net = torch.nn.Sequential(
-            torch.nn.Linear(784, 64),
+            torch.nn.Linear(784, 32),
             torch.nn.ReLU(),
-            torch.nn.Linear(64, 784),
+            torch.nn.Linear(32, 784),
             torch.nn.Sigmoid()
         )
 
@@ -93,24 +64,31 @@ model = myModel()
 #---------------------------------------训练过程可视化、保存模型-------------------------------------------------------#
 
 print(model)
+# torch.optim的优化器固定实现L2正则化，不能实现L1正则化。
+#optimizer = torch.optim.Adam(model.parameters(), lr=1e-4,weight_decay=10.0)# weight_decay=10.0，即正则化的权重lambda =10.0
+
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 loss_fn = torch.nn.MSELoss()
-Epoch = 5
 ## 开始训练 ##
-for t in range(Epoch):
+for t in range(15):
 
     x = model(x_train)          # 向前传播
-    loss = loss_fn(x, x_train)  # 计算损失
+    MSEloss = loss_fn(x, x_train)  # 计算损失
+    # L1 Loss
+    regularization_loss = 0
+    for param in model.parameters():
+        regularization_loss += torch.sum(torch.abs(param))
+    loss = MSEloss + 0.0001 * regularization_loss
 
     if (t + 1) % 1 == 0:        # 每训练1个epoch，打印一次损失函数的值
-        print(loss.item())
-
-    if (t + 1) % 5 == 0:
-        torch.save(model.state_dict(), "./pytorch_SingleLayerAutoEncoder_model.pkl")  # 每5个epoch保存一次模型
-        print("save model")
+        print('epoch [{}/{}], loss:{:.4f}'.format(t + 1, 15, loss.item()))  # 每训练1个epoch，打印一次损失函数的值
 
     optimizer.zero_grad()      # 在进行梯度更新之前，先使用optimier对象提供的清除已经积累的梯度
     loss.backward()            # 计算梯度
     optimizer.step()           # 更新梯度
+
+    if (t + 1) % 5 == 0:
+        torch.save(model.state_dict(), "./pytorch_NormalizeAutoEncoder_model.pkl")  # 每5个epoch保存一次模型
+        print("save model")
 #----------------------------------------------------------------------------------------------------------------------#
 
