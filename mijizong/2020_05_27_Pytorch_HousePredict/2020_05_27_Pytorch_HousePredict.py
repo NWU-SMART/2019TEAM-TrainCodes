@@ -88,12 +88,10 @@ class HousePredict(torch.nn.Module):
         x = self.dense3(x)
         return x
 
-
-
 model = HousePredict()
 print(model)
-model.compile(loss = 'MSE', optimizer = 'adam')                       # 编译模型
-predictions = model.fit(x_train, y_train, epochs=200, batch_size=200,# 开始训练
+model.compile(loss = 'MSE', optimizer = 'adam')                             # 编译模型
+predictions = model.fit(x_train, y_train, epochs=200, batch_size=200,       # 开始训练
                 verbose=2, validation_data=(x_valid, y_valid)) # verbose = 2 指每个epoch输出一行记录    后面为验证集
 
 #  -------------------------- 4、model_class继承训练    -------------------------------

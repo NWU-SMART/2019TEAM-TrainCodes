@@ -82,8 +82,7 @@ class HousePredict(keras.Model):
 
     def call(self, inputs):
         x = self.dense1(inputs)                         # 全连接层
-        if self.use_dp:
-            x = self.dp(x)
+        x = self.dp(x)
         x=self.dense2(x)
         x=self.dense3(x)
         return x
