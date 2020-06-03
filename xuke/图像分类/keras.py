@@ -150,7 +150,6 @@ class imageModel(keras.Model):
 model = imageModel()
 opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)     #优化器
 
-
 #  -------------------------- 4、训练 -------------------------------
 if not data_augmentation:
     print('Not using data augmentation.')
