@@ -1,10 +1,13 @@
 # ----------------开发者信息--------------------------------#
 # 开发者：张亚楠
-# 开发日期：2020年6月2日 
+# 开发日期：2020年6月3日
 # 修改日期：
 # 修改人：
-# 修改内容：
-
+# 修改内容：使用gpu加速训练，
+'''此程序需要在安装了gpu版本的pytorch电脑运行
+120行使用了dataloader载入数据，小批量进行迭代
+修改了画图方式和损失打印方式
+'''
 
 #  -------------------------- 导入需要包 -------------------------------
 import pandas as pd
@@ -82,14 +85,14 @@ class JobModel(nn.Module):  # 继承torch.nn.Module
     def __init__(self):  # 绑定两个属性
         super(JobModel, self).__init__()
         self.dense =torch.nn.Sequential(torch.nn.Embedding(num_embeddings=2000, embedding_dim=32),
-                                        torch.nn.Conv1d(in_channels=50, out_channels=256, kernel_size=5, padding=1, stride=1),
+                                        torch.nn.Conv1d(in_channels=50, out_channels=256, kernel_size=3, padding=1, stride=1),
                                         torch.nn.ReLU(),
                                         torch.nn.MaxPool1d(kernel_size=3, padding=1),
-                                        torch.nn.Conv1d(in_channels=256, out_channels=50, kernel_size=5, padding=1, stride=1),
+                                        torch.nn.Conv1d(in_channels=256, out_channels=50, kernel_size=3, padding=1, stride=1),
                                         torch.nn.Flatten(),
-                                        torch.nn.BatchNorm1d(400),  # 我计算的不是400，但是错误提示是400
+                                        torch.nn.BatchNorm1d(550),
                                         torch.nn.Dropout(0.2),
-                                        torch.nn.Linear(400, 256),
+                                        torch.nn.Linear(550, 256),
                                         torch.nn.ReLU(),
                                         torch.nn.Linear(256, 10),
                                         torch.nn.Softmax()
@@ -104,22 +107,38 @@ class JobModel(nn.Module):  # 继承torch.nn.Module
 model = JobModel()  # 实例化招聘模型
 print(model)  # 打印模型结构
 
-optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)  # 定义优化器为SGD，学习率是1e-3
-loss_func = torch.nn.CrossEntropyLoss()   # 定义损失函数为均方误差
+# 调用GPU加速训练，也就是在模型，x_train后面加上cuda()
+model = model.cuda()
+x_train = x_train.cuda()
+y_train = y_train.cuda()
 
+
+optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
+loss_func = torch.nn.CrossEntropyLoss()
+
+
+#使用dataloader载入数据，小批量进行迭代，
+import torch.utils.data as Data
+torch_dataset = Data.TensorDataset(x_train, y_train)
+loader = Data.DataLoader(dataset=torch_dataset, batch_size=512, shuffle=True, num_workers=0)
 
 #   ---------------------- 训练模型 ---------------------------
 loss_list = [] # 建立一个loss的列表，以保存每一次loss的数值
 for t in range(5):
-    train_prediction = model(x_train)
-    loss = loss_func(train_prediction, y_train)  # 计算损失
-    loss_list.append(loss) # 使用append()方法把每一次的loss添加到loss_list中
+    running_loss = 0
+    for step, (x_train, y_train) in enumerate(loader):
+        train_prediction = model(x_train)
+        loss = loss_func(train_prediction, y_train)  # 计算损失
+        loss_list.append(loss) # 使用append()方法把每一次的loss添加到loss_list中
+        optimizer.zero_grad()  # 由于pytorch的动态计算图，所以在进行梯度下降更新参数的时候，梯度并不会自动清零。需要在每个batch候清零梯度
+        loss.backward()  # 反向传播，计算参数
+        optimizer.step()  # 更新参数
+        running_loss += loss.item()
+    else:
+        print(f"第{t}代训练损失为：{running_loss/len(loader)}")  # 打印平均损失
 
-    optimizer.zero_grad()  # 由于pytorch的动态计算图，所以在进行梯度下降更新参数的时候，梯度并不会自动清零。需要在每个batch候清零梯度
-    loss.backward()  # 反向传播，计算参数
-    optimizer.step()  # 更新参数
-    print(loss)
-
-
-plt.plot(loss_list, 'r-')
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.plot(loss_list, 'c-')
 plt.show()

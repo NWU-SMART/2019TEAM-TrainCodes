@@ -80,7 +80,7 @@ model = Sequential()                                    # 初始化
 model.add(Dense(units = 10,                             #定义该层有10个神经元
                 activation='relu',                      #该层使用relu激活函数
                 input_shape=(x_train_pd.shape[1],)))    #表示输入的尺寸
-model.add(Dropout(0.2))                                 #舍弃50%
+model.add(Dropout(0.2))                                 #舍弃20%
 model.add(Dense(units = 15,activation='relu' ))
 model.add(Dense(units = 1, activation='linear'))
 print(model.summary())                                  #打印网络层次结构
