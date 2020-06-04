@@ -107,7 +107,6 @@ class Model(nn.Module):
 
 model = Model()
 
-
 #  ------------------------- 训练   ---------------------------#
 model = Model()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)    # 学习率
