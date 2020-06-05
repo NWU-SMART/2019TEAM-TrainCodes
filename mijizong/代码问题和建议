@@ -42,3 +42,8 @@
 
 2020年6月3日晚
 受亚楠启发，成功搭建Pytorch GPU环境，提升模型训练效率。
+
+2020年6月5日
+1)图像分类CNN——Keras——class继承程序报错如下：
+“RuntimeError: You must compile your model before using it.”
+暂时未能解决。
