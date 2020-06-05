@@ -107,7 +107,7 @@ class Recruitment1(nn.Module):
         return x
 #  ---------------------------- 5.1、Sequential模型构造 -----------------------------
 
-#  ----------------------------- 5.2、API_Model模型构造 -----------------------------
+#  ----------------------------- 5.2、another_method模型构造 -----------------------------
 class Recruitment2(nn.Module):
     def __init__(self):
         super(Recruitment2,self).__init__()
@@ -127,7 +127,7 @@ class Recruitment2(nn.Module):
     def forward(self, x):
         x = self.conv(x)
         return x
-#  ----------------------------- 5.2、API_Model模型构造 -----------------------------
+#  ----------------------------- 5.2、another_method模型构造 -----------------------------
 
 #  ----------------------------- 5.3、class继承模型构造 -----------------------------
 class Recruitment3(torch.nn.Module):
