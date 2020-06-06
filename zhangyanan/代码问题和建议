@@ -27,3 +27,6 @@
 1）尝试了数据的批量载入方法dataloader和dataset，可以查看下帮助！很棒，加油
 2）我这里提供一个 github上的 dataset扩展类的代码
       https://github.com/utkuozbulak/pytorch-custom-dataset-examples
+
+2020年6月6日19点16分
+1）实现了单层编码器，很努力勤奋，加油 ！
