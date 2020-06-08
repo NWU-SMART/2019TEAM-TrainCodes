@@ -14,7 +14,6 @@ import torch
 import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
-from IPython.display import SVG
 # ------------------------------------1引入包-----------------------------------------------
 # ------------------------------------2数据处理------------------------------------------
 
@@ -55,7 +54,6 @@ class single(nn.Module):
         out=self.sigmoid(out)
 
         return out
-
 model=single()
 optimizer=torch.optim.Adam(model.parameters(),lr=0.001)
 loss=nn.MSELoss()
@@ -65,7 +63,7 @@ loss=nn.MSELoss()
 loss_total=[]
 epoch_total=[]
 
-epochs=5
+epochs=50
 for epoch in range(epochs):
     pre=model(X_train)
     train_loss=loss(pre,X_train)
@@ -104,7 +102,7 @@ for i in range(n):
     ax.get_yaxis().set_visible(False)
 plt.show()
 #RuntimeError: Can't call numpy() on Variable that requires grad. Use var.detach().numpy() instead.
-pre=pre.detach().numpy()
+pre=model(X_test).detach().numpy()
 
 plt.figure(figsize=(20,6))
 for i in range(10):
