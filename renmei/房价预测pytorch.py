@@ -31,7 +31,7 @@ from torchvision import transforms
 
 # 数据放到本地路径
 # D:\\keras_datasets\\boston_housing.npz(本地路径)
-path = 'D:\\keras_datasets\\boston_housing.npz'
+path = 'C:\\Users\\Administrator\\Desktop\\代码\\boston_housing.npz'
 f = np.load(path)
 # 404个训练，102个测试
 # 训练数据
@@ -72,6 +72,7 @@ y_valid=MinMaxScaler(y_valid)
 
 epoch=5
 lr=0.03
+"""
 net=nn.Sequential(
     nn.Linear(x_train_pd.shape[1],10),
     nn.ReLU(),
@@ -79,16 +80,38 @@ net=nn.Sequential(
     nn.Linear(10,15),
     nn.ReLU(),
     nn.Linear(10,1),
-    nn.Linear()
+
 )
+"""
+class house(nn.Module):
+    def __init__(self):
+        super(house,self).__init__()
+        self.fc=nn.Sequential(
+            nn.Linear(x_train_pd.shape[1],10),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(10, 15),
+            nn.ReLU(),
+            nn.Linear(15, 1),
+
+        )
+    def forward(self,x_train):
+        out=self.fc(x_train)
+        return out
+net=house()
+
 loss=nn.CrossEntropyLoss()
-optimizer=torch.optim.adam(net.parameters(),lr=lr)
+optimizer=torch.optim.Adam(net.parameters(),lr=lr)
+
 for i in range(epoch):
-    out=net(x_train)
-    loss=loss(out,y_train)
+
+    train_loss=0
+    out=net.train()
+    loss=loss(y_train,out)
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
+    print(loss)
     num_correct=0
     out2=net(x_valid)
     predict=torch.max(out2,1)
