@@ -77,14 +77,14 @@ y_valid = min_max_scaler.transform(y_valid_pd)
 
 
 
-input =Input(shape=(x_train_pd.shape[1:]),)
+#input =Input(shape=(x_train_pd.shape[1:]),)
 #x=Dense(10,activation='relu')(input)
 #x=Dropout(0.2)(x)
 #x=Dense(15,activation='relu')(x)
 #output=Dense(1,activation='linear')(x)
 #model=Model(inputs=input,outputs=output)
 
-"""
+
 model = Sequential()  # 初始化，很重要！
 model.add(Dense(units=10,  # 输出大小
                 activation='relu',  # 激励函数
@@ -126,7 +126,7 @@ class SimpleMLP(Model):
        x=self.dense3(x)
        return x
 model=SimpleMLP()
-
+"""
 
 
 
